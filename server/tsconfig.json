@@ -1,0 +1,37 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "experimentalDecorators": true,
+
+        // project options
+        "lib": [ "es6" ],
+        "outDir": "dist",
+        "removeComments": true,
+        "target": "es6",
+
+        // Module resolution
+        "baseUrl": "./",
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "paths": {},
+
+        // Source Map
+        "sourceMap": true,
+        "sourceRoot": "/",
+
+        // Strict Checks
+        "alwaysStrict": true,
+        "allowUnreachableCode": false,
+        "noImplicitAny": false, // Disabled for Typescript inexperience
+        "strictNullChecks": true,
+
+        // Linter Checks
+        "noImplicitReturns": true,
+        "noUncheckedIndexedAccess": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": false // Disabled for Typescript inexperience
+    },
+    "exclude": [
+      "node_modules/"
+    ]
+  }
