@@ -12,6 +12,25 @@ const logger = Logger.getLogger('/lib/entry.ts');
 
 let server = http.createServer();
 
+// TODO: TEMPORARY
+var GoogleStrategy = require('passport-google-oauth20').Strategy;
+var passport = require('passport');
+passport.use(new GoogleStrategy({
+    clientID: Config.auth.googleClientID,
+    clientSecret: Config.auth.googleClientSecret,
+    callbackURL: "http://localhost:8080/auth/google/callback"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    //console.log('STRATEGYCB', accessToken, refreshToken, profile);
+    return cb(null, profile);
+    /*User.findOrCreate({ googleId: profile.id }, function (err, user) {
+      return cb(err, user);
+});*/
+  }
+));
+passport.serializeUser((user, done) => {/*console.log("SERIALIZE", user);*/done(null, user.id);});
+passport.deserializeUser((id, done) => {/*console.log("DESERIALIZE", id);*/done(null, { id });});
+
 logger.info('Starting services...');
 Services.add(Constants.RESTMain, new REST());
 //Services.add(Constants.Storage, new Database(Config.dbUrl));
@@ -19,31 +38,4 @@ logger.info(`Started ${Services.count()} services`);
 
 server.on('request', Services.get<REST>(Constants.RESTMain).listener());
 
-//server.listen(Config.port, () => logger.info(`Server started and is listening on port: ${Config.port}`));
-
-import mongoose from 'mongoose';
-
-mongoose.connect(Config.dbUrl).then(() => console.log('Connected!')).catch(e => console.error(e));
-
-const { MongoClient, ServerApiVersion } = require('mongodb');
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(Config.dbUrl, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
-}
-run().catch(console.dir);
+server.listen(Config.port, () => logger.info(`Server started and is listening on port: ${Config.port}`));
