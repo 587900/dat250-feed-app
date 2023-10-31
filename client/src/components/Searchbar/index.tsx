@@ -1,7 +1,7 @@
-import React, { useState, useEffect, FC } from 'react';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
-import ClearIcon from '@mui/icons-material/Clear';
+import React, { useState, useEffect, FC } from "react";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+import ClearIcon from "@mui/icons-material/Clear";
 
 // Assuming OptionType is the type of options you are dealing with, replace it with your actual type
 interface OptionType {
@@ -11,38 +11,38 @@ interface OptionType {
 
 // Assuming categories is a constant, replace it with your actual data
 const categories = [
-  { id: 1, name: 'Category 1' },
-  { id: 2, name: 'Category 2' },
+  { id: 1, name: "Category 1" },
+  { id: 2, name: "Category 2" },
   // ... other categories
 ];
 
 // Assuming sortedOptions is a constant, replace it with your actual data
 const sortedOptions: OptionType[] = [
-  { name: 'Option 1', categoryId: 1 },
-  { name: 'Option 2', categoryId: 2 },
+  { name: "Option 1", categoryId: 1 },
+  { name: "Option 2", categoryId: 2 },
   // ... other options
 ];
 
 const Searchbar: FC = () => {
   const [recentSearches, setRecentSearches] = useState<OptionType[]>([]);
-  const [inputValue, setInputValue] = useState<string>('');
+  const [inputValue, setInputValue] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   // Function to handle selection from the autocomplete
   const handleSelect = (
-    event: React.SyntheticEvent<Element, Event>, 
-    value: string | OptionType, 
+    event: React.SyntheticEvent<Element, Event>,
+    value: string | OptionType,
     reason: string,
     details?: any
   ) => {
-    if (typeof value !== 'string') {
+    if (typeof value !== "string") {
       console.log(value);
     }
   };
 
   // Function to remove a recent search
   const removeRecentSearch = (item: OptionType) => {
-    setRecentSearches(recentSearches.filter(search => search !== item));
+    setRecentSearches(recentSearches.filter((search) => search !== item));
   };
 
   return (
@@ -52,12 +52,22 @@ const Searchbar: FC = () => {
       open={isOpen}
       onOpen={() => setIsOpen(true)}
       onClose={() => setIsOpen(false)}
-      options={inputValue ? sortedOptions : (recentSearches.length ? recentSearches : sortedOptions)}
+      options={
+        inputValue
+          ? sortedOptions
+          : recentSearches.length
+          ? recentSearches
+          : sortedOptions
+      }
       groupBy={(option) => {
-        const parentCategory = categories.find(cat => cat.id === option.categoryId);
-        return parentCategory ? parentCategory.name : 'Unknown';
+        const parentCategory = categories.find(
+          (cat) => cat.id === option.categoryId
+        );
+        return parentCategory ? parentCategory.name : "Unknown";
       }}
-      getOptionLabel={(option) => typeof option === 'string' ? option : option.name}
+      getOptionLabel={(option) =>
+        typeof option === "string" ? option : option.name
+      }
       inputValue={inputValue}
       onInputChange={(event, newInputValue) => {
         setInputValue(newInputValue);
@@ -69,7 +79,7 @@ const Searchbar: FC = () => {
           {recentSearches.includes(option) && (
             <ClearIcon
               onClick={() => removeRecentSearch(option)}
-              sx={{ cursor: 'pointer', marginLeft: 'auto' }}
+              sx={{ cursor: "pointer", marginLeft: "auto" }}
             />
           )}
         </li>
@@ -80,19 +90,19 @@ const Searchbar: FC = () => {
           label="Search"
           variant="outlined"
           InputLabelProps={{
-            style: { top: '-3px' },
+            style: { top: "-3px" },
           }}
           InputProps={{
             ...params.InputProps,
-            style: { padding: '3px 8px' },
+            style: { padding: "3px 8px" },
             endAdornment: (
               <>
                 {inputValue && (
                   <ClearIcon
                     onClick={() => {
-                      setInputValue('');
+                      setInputValue("");
                     }}
-                    sx={{ cursor: 'pointer'}}
+                    sx={{ cursor: "pointer" }}
                   />
                 )}
                 {params.InputProps.endAdornment}

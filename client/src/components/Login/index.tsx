@@ -27,7 +27,7 @@ import {
 } from "@mui/icons-material";
 
 import backgroundImage from '../../assets/background-images/schoolground-background-2.png';
-import Logo from '../../assets/Logo/FeedApp-logo-transparent.png';
+import Logo from '../../assets/Logo/alternative-FeedApp-logo.png';
 
 import { Stack } from '@mui/system';
 
@@ -74,6 +74,10 @@ const Login: FC = () => {
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setActiveTab(newValue);
+    };
+
+    const getTabColor = (index: number): string => {
+        return activeTab === index ? 'primary.dark' : 'primary.light';
     };
 
 
@@ -152,8 +156,8 @@ const Login: FC = () => {
 
                 <Divider sx={{ my: 1 }} color="primary" />
                 <Tabs value={activeTab} onChange={handleChange} variant="fullWidth">
-                    <Tab label="Login" />
-                    <Tab label="Register" />
+                    <Tab label="Login" sx={{ color: getTabColor(0) }} />
+                    <Tab label="Register" sx={{ color: getTabColor(1) }} />
                 </Tabs>
                 {activeTab === 0 && (
                     <Container maxWidth="xs">
