@@ -49,7 +49,7 @@ const Home: FC = () => {
       <Box
         sx={{
           height: 400,
-          [theme.breakpoints.down("sm")]: {
+          [theme.breakpoints.down("md")]: {
             width: "100%",
           },
           width: "50%",

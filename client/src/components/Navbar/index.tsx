@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
   const [loadingProfile, setLoadingProfile] = useState<boolean>(true);
 
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-  const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
+  const isPhone = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMobileMoreAnchorEl(event.currentTarget);
@@ -108,7 +108,7 @@ const Navbar: React.FC = () => {
             {/* Searchbar */}
             <Box
               sx={{
-                [theme.breakpoints.down("sm")]: {
+                [theme.breakpoints.down("md")]: {
                   width: "60%",
                 },
                 width: '50%',
