@@ -46,14 +46,21 @@ const Home: FC = () => {
   return (
     <div style={{ margin: 0, padding: 0, overflowX: "hidden" }}>
       <Navbar />
-      <Box sx={{ height: 400, [theme.breakpoints.down("sm")]: {
-                  width: "100%",
-                },
-                width: '50%', p: 3, mx: 'auto' }}>  
+      <Box
+        sx={{
+          height: 400,
+          [theme.breakpoints.down("sm")]: {
+            width: "100%",
+          },
+          width: "50%",
+          p: 3,
+          mx: "auto",
+        }}
+      >
         <DataGrid
           rows={rows}
           columns={columns}
-          sx={{ border: '1px solid #CE8F6E', justifyContent: 'center' }}
+          sx={{ border: "1px solid #CE8F6E", justifyContent: "center" }}
           className="customDataGrid"
           initialState={{
             pagination: {
@@ -62,7 +69,7 @@ const Home: FC = () => {
               },
             },
           }}
-          pageSizeOptions={[5]}  // Adjust page size as needed
+          pageSizeOptions={[5]} // Adjust page size as needed
         />
       </Box>
     </div>
