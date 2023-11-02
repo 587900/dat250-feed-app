@@ -2,6 +2,8 @@ import React, { useState, useEffect, FC } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import ClearIcon from "@mui/icons-material/Clear";
+import SearchIcon from "@mui/icons-material/Search";
+import "@mui/material/styles";
 
 // Assuming OptionType is the type of options you are dealing with, replace it with your actual type
 interface OptionType {
@@ -9,19 +11,20 @@ interface OptionType {
   categoryId?: number; // Assuming categoryId is a number, adjust as per your data structure
 }
 
-// Assuming categories is a constant, replace it with your actual data
-const categories = [
-  { id: 1, name: "Category 1" },
-  { id: 2, name: "Category 2" },
-  // ... other categories
+const mockData = [
+  { name: "Apple", categoryId: 1 },
+  { name: "Banana", categoryId: 1 },
+  { name: "Cherry", categoryId: 1 },
+  { name: "Date", categoryId: 2 },
+  { name: "Elderberry", categoryId: 2 },
+  { name: "Fig", categoryId: 2 },
+  { name: "Grape", categoryId: 3 },
+  { name: "Honeydew", categoryId: 3 },
+  { name: "Indian Fig", categoryId: 3 },
 ];
 
 // Assuming sortedOptions is a constant, replace it with your actual data
-const sortedOptions: OptionType[] = [
-  { name: "Option 1", categoryId: 1 },
-  { name: "Option 2", categoryId: 2 },
-  // ... other options
-];
+const sortedOptions: OptionType[] = mockData;
 
 const Searchbar: FC = () => {
   const [recentSearches, setRecentSearches] = useState<OptionType[]>([]);
@@ -35,8 +38,8 @@ const Searchbar: FC = () => {
     reason: string,
     details?: any
   ) => {
-    if (typeof value !== "string") {
-      console.log(value);
+    if (typeof value !== "string" && !recentSearches.includes(value)) {
+      setRecentSearches([...recentSearches, value]);
     }
   };
 
@@ -59,12 +62,7 @@ const Searchbar: FC = () => {
           ? recentSearches
           : sortedOptions
       }
-      groupBy={(option) => {
-        const parentCategory = categories.find(
-          (cat) => cat.id === option.categoryId
-        );
-        return parentCategory ? parentCategory.name : "Unknown";
-      }}
+      // The groupBy prop has been removed
       getOptionLabel={(option) =>
         typeof option === "string" ? option : option.name
       }
@@ -89,6 +87,7 @@ const Searchbar: FC = () => {
           {...params}
           label="Search"
           variant="outlined"
+          placeholder="Type to search..."
           InputLabelProps={{
             style: { top: "-3px" },
           }}
@@ -105,6 +104,7 @@ const Searchbar: FC = () => {
                     sx={{ cursor: "pointer" }}
                   />
                 )}
+                <SearchIcon sx={{ cursor: "pointer", color: 'primary.light' }} />
                 {params.InputProps.endAdornment}
               </>
             ),
