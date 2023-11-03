@@ -53,7 +53,7 @@ const Home: FC = () => {
             width: "100%",
           },
           width: "50%",
-          pl: 1,
+          px: 1,
           mx: "auto",
         }}
       >
@@ -66,11 +66,11 @@ const Home: FC = () => {
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 5,
+                pageSize: 8,
               },
             },
           }}
-          pageSizeOptions={[5]} 
+          pageSizeOptions={[8]} 
         />
       </Box>
     </div>
