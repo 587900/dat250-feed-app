@@ -4,6 +4,7 @@ import { createTheme } from "@mui/material/styles";
 const colorTokens = {
   black: {
     1: "#1B1B1B",
+    2: "#000"
   },
   brown: {
     1: "#E2A145",
@@ -38,7 +39,7 @@ export const theme = createTheme({
     },
     text: {
       primary: colorTokens.black[1],
-      secondary: colorTokens.white[2],
+      secondary: colorTokens.brown[3],
     },
     background: {
       default: colorTokens.white[2],

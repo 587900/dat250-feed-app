@@ -4,7 +4,8 @@
   "description": "Feed App server",
   "main": "index.ts",
   "scripts": {
-    "start": "nodemon -r dotenv/config ./index.ts"
+    "start": "nodemon -r dotenv/config ./index.ts",
+    "test-dweet": "ts-node -r dotenv/config ./lib/services/dweet-sender.ts"
   },
   "author": "Gruppe 1 - DAT250 HVL 2023",
   "dependencies": {
