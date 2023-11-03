@@ -62,6 +62,7 @@ const Home: FC = () => {
           columns={columns}
           sx={{ border: "1px solid #CE8F6E", justifyContent: "center" }}
           className="customDataGrid"
+          density="compact"
           initialState={{
             pagination: {
               paginationModel: {
