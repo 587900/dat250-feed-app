@@ -10,6 +10,8 @@ import REST from './rest/rest';
 
 const logger = Logger.getLogger('/lib/entry.ts');
 
+// TODO: AuthRouter: Remove cookie after usage
+
 let server = http.createServer();
 
 // TODO: TEMPORARY

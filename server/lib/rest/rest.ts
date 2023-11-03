@@ -11,6 +11,7 @@ import bodyQuery from './middleware/body-query';
 
 import UserRouter from './user-router';
 import AuthRouter from './router/auth';
+import PollRouter from './router/poll';
 
 type RequestListener = http.RequestListener<typeof http.IncomingMessage, typeof http.ServerResponse>;
 
@@ -33,8 +34,10 @@ export default class REST {
         let router = this.router;
         app.use('/', router);
 
+        router.get('/', (req, res) => res.send('Welcome to our feed-app!'));
         router.use('/auth', AuthRouter.create());
         router.use('/api/user', UserRouter.create());
+        router.use('/api/resource/poll', PollRouter.create());
 
         app.use(Middlewares._404());
 
