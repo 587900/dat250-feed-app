@@ -9,38 +9,24 @@ import Config from './config';
 import REST from './rest/rest';
 import Database from './services/database';
 import PollService from './services/poll-service';
-import Poll from '../../common/model/poll';
+import AuthService from './services/auth-service';
+import PassportSetup from './services/passport-setup';
 
 const logger = Logger.getLogger('/lib/entry.ts');
 
-// TODO: AuthRouter: Remove cookie after usage
-
 let server = http.createServer();
-
-// TODO: TEMPORARY
-var GoogleStrategy = require('passport-google-oauth20').Strategy;
-var passport = require('passport');
-passport.use(new GoogleStrategy({
-    clientID: Config.auth.googleClientID,
-    clientSecret: Config.auth.googleClientSecret,
-    callbackURL: "http://localhost:8080/auth/google/callback"
-  },
-  function(accessToken, refreshToken, profile, cb) {
-    //console.log('STRATEGYCB', accessToken, refreshToken, profile);
-    return cb(null, profile);
-    /*User.findOrCreate({ googleId: profile.id }, function (err, user) {
-      return cb(err, user);
-});*/
-  }
-));
-passport.serializeUser((user, done) => {/*console.log("SERIALIZE", user);*/done(null, user.id);});
-passport.deserializeUser((id, done) => {/*console.log("DESERIALIZE", id);*/done(null, { id });});
 
 logger.info('Starting services...');
 Services.add(Constants.RESTMain, new REST());
 Services.add(Constants.Storage, new Database(Config.dbUrl));
 Services.add(Constants.PollService, new PollService());
+Services.add(Constants.AuthService, new AuthService());
+Services.add(Constants.PassportSetup, new PassportSetup());
 logger.info(`Started ${Services.count()} services`);
+
+logger.debug('Setting up passport...');
+Services.get<PassportSetup>(Constants.PassportSetup).setup('http://localhost:8080');
+logger.debug('Passport setup complete');
 
 server.on('request', Services.get<REST>(Constants.RESTMain).listener());
 

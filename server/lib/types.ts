@@ -1,3 +1,5 @@
 'use strict';
 
-export { };
+type SessionUser = { id: number }
+
+export { SessionUser };

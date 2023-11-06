@@ -14,3 +14,4 @@ type User = {
 }
 
 export default User;
+export { LastLoggedInWith, Claim }
