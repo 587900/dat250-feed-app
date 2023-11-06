@@ -16,14 +16,11 @@ export default class GoogleAuthRouter {
 
         router.get('/', passport.authenticate('google', { scope: ['profile'] }));
 
-        const success = (req, res) => res.redirect(req.cookies[Constants.SessionRedirectOnAuthSuccess] || '/');
-        const failure = (req, res) => res.redirect(req.cookies[Constants.SessionRedirectOnAuthFailure] || '/login');
-
-        router.get('/callback', (req, res, next) => passport.authenticate('google', (err, user, info, status) => {
-            if (err) return next(err);
-            if (!user) return failure(req, res);
-            return success(req, res);
-        })(req, res, next));
+        router.get('/callback', (req, res, next) => {
+            let successRedirect = req.cookies[Constants.SessionRedirectOnAuthSuccess] || '/';
+            let failureRedirect = req.cookies[Constants.SessionRedirectOnAuthFailure] || '/login';
+            passport.authenticate('google', { successRedirect, failureRedirect })(req, res, next);
+        });
 
         return router;
     }

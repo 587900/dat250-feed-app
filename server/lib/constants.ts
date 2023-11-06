@@ -4,6 +4,8 @@ enum Constants {
     // services
     RESTMain = 'rest-main',
     Storage = 'storage',
+    AuthService = 'auth-service',
+    PassportSetup = 'passport-setup',
 
     // session
     SessionRedirectOnAuthSuccess = 'auth_redirect_success',
