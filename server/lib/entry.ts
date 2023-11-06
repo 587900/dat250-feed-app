@@ -7,6 +7,8 @@ import Constants from './constants';
 import Config from './config';
 
 import REST from './rest/rest';
+import Database from './services/database';
+import PollService from './services/poll-service';
 import AuthService from './services/auth-service';
 import PassportSetup from './services/passport-setup';
 
@@ -16,9 +18,10 @@ let server = http.createServer();
 
 logger.info('Starting services...');
 Services.add(Constants.RESTMain, new REST());
+Services.add(Constants.Storage, new Database(Config.dbUrl));
+Services.add(Constants.PollService, new PollService());
 Services.add(Constants.AuthService, new AuthService());
 Services.add(Constants.PassportSetup, new PassportSetup());
-//Services.add(Constants.Storage, new Database(Config.dbUrl));
 logger.info(`Started ${Services.count()} services`);
 
 logger.debug('Setting up passport...');
@@ -28,3 +31,12 @@ logger.debug('Passport setup complete');
 server.on('request', Services.get<REST>(Constants.RESTMain).listener());
 
 server.listen(Config.port, () => logger.info(`Server started and is listening on port: ${Config.port}`));
+
+/* 
+let ps = Services.get<PollService>(Constants.PollService);
+
+
+let poll : Poll = { code: '123', ownerId: 'user123', creationUnix: 0, open: true, title: 'test', description: 'yrdy',
+cachedVotes: { }, timed: false, private: true, whitelist: []  };
+ps.create(poll);
+*/
