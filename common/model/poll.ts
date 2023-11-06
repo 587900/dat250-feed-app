@@ -1,6 +1,6 @@
 'use strict';
 
-import { KeyValuePair } from './../types';
+import { KeyToValue } from './../types';
 import Vote, { VoteSelection } from './vote';
 
 type AllowedVoteType = 'web-user' | 'iot-device';
@@ -31,7 +31,8 @@ type Poll = {
     open: boolean,
     title: string,
     description: string,
-    cachedVotes: KeyValuePair<VoteSelection>
+    cachedVotes: KeyToValue<VoteSelection, number>
 } & (PrivatePoll | PublicPoll) & (TimedPoll | UntimedPoll)
 
 export default Poll;
+export { AllowedVoteType };
