@@ -1,7 +1,7 @@
 'use strict';
 
 import express from 'express';
-import { KeyValuePair } from './../types';
+import { KeyValuePair } from './../../../common/types';
 
 export default class Util {
 
