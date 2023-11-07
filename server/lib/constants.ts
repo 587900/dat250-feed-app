@@ -5,6 +5,8 @@ enum Constants {
     RESTMain = 'rest-main',
     Storage = 'storage',
     PollService = 'poll-service',
+    UserService = 'user-service',
+    VoteService = 'vote-service',
     AuthService = 'auth-service',
     PassportSetup = 'passport-setup',
 

@@ -9,6 +9,8 @@ import Config from './config';
 import REST from './rest/rest';
 import Database from './services/database';
 import PollService from './services/poll-service';
+import UserService from './services/user-service';
+import VoteService from './services/vote-service';
 import AuthService from './services/auth-service';
 import PassportSetup from './services/passport-setup';
 
@@ -18,8 +20,10 @@ let server = http.createServer();
 
 logger.info('Starting services...');
 Services.add(Constants.RESTMain, new REST());
-Services.add(Constants.Storage, new Database(Config.dbUrl));
+Services.add(Constants.Storage, new Database(Config.dbUrl, "Feed-app"));
 Services.add(Constants.PollService, new PollService());
+Services.add(Constants.UserService, new UserService());
+Services.add(Constants.VoteService, new VoteService());
 Services.add(Constants.AuthService, new AuthService());
 Services.add(Constants.PassportSetup, new PassportSetup());
 logger.info(`Started ${Services.count()} services`);
