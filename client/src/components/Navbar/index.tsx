@@ -141,7 +141,7 @@ const Navbar: React.FC = () => {
                   </Typography>
                 </Link>
                 <Link
-                  to="/"
+                  to="/create-poll"
                   className="me-auto"
                   style={{ backgroundColor: "inherit", textDecoration: "none" }}
                 >
