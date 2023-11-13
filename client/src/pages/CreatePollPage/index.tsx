@@ -3,6 +3,8 @@ import {
   Box, TextField, FormControlLabel, Switch, Button, Typography, useTheme, Grid
 } from '@mui/material';
 import Navbar from '../../components/Navbar';
+import { createPoll } from '../../services/pollService';
+import { CreatePollData } from '../../types/pollTypes';
 
 // Function to generate random alphanumeric code
 const generateRandomCode = () => {
@@ -15,11 +17,14 @@ const generateRandomCode = () => {
 };
 
 interface FormState {
-  title: string;
-  description: string;
-  isPrivate: boolean;
-  duration: number; // Duration in minutes
-  code: string; // Code for the poll
+    title: string;
+    description: string;
+    isPrivate: boolean;
+    timed: boolean;
+    duration: number;
+    whitelist: string[]; // For private polls
+    allowedVoters: string[]; // For public polls
+    code: string;
 }
 
 const CreatePollPage: FC = () => {
@@ -28,8 +33,11 @@ const CreatePollPage: FC = () => {
     title: '',
     description: '',
     isPrivate: false,
+    timed: false, // Default is untimed
     duration: 60, // Default duration set to 60 minutes
-    code: '', // Initial code is empty
+    whitelist: [],
+    allowedVoters: [],
+    code: '',
   });
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,10 +68,16 @@ const CreatePollPage: FC = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    // Here you'd probably want to send the formState to your server
-    console.log(formState);
-  };
+  const handleSubmit = async () => {
+    try {
+        const createdPoll = await createPoll(formState as CreatePollData);
+        console.log('Poll created:', createdPoll);
+        // Handle successful creation
+    } catch (error) {
+        // Handle errors
+        console.error('Error creating poll:', error);
+    }
+};
 
   return (
     <div>
