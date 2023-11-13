@@ -1,20 +1,10 @@
 'use strict';
-import Constants from './../constants';
-import User from './../../../common/model/user';
-
-import Services from './../services';
-import Database from './database';
 
 export default class UserService {
     
-    private db: Database;
-    private collection: string = 'User';
+    constructor() {}
 
-    constructor() {
-        // Initialize the database connection using a service
-        this.db = Services.get<Database>(Constants.Storage);
-    }
-
+    /*
     // Insert a single User document
     public async insert(data: User) {
         // Generate a unique ID for the User document
@@ -76,4 +66,5 @@ export default class UserService {
     public async readMany(query) {
         return this.db.read(query, this.collection);
     }
+    */
 }

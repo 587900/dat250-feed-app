@@ -1,7 +1,7 @@
 'use strict';
 
 type Claim = 'web-user' | 'admin' | 'iot-device';
-type LastLoggedInWith = 'google' | 'iot-device-protocol';
+type LastLoggedInWith = 'google' | 'iot-device' | 'none';
 
 type User = {
     id: string,

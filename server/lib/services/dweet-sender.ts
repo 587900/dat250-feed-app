@@ -1,37 +1,22 @@
-import axios from 'axios';
+'use strict';
 
-function send(data) {
-    // Encode the title for use in the  URL
-    const encodedTitle = encodeURIComponent(data.title);
+import fetch from 'node-fetch';
 
-    const urlPost = `https://dweet.io/dweet/for/${encodedTitle}`
-    const urlGet = `https://dweet.io/get/latest/dweet/for/${encodedTitle}`
-    console.log(urlPost + "\n" + urlGet);
+import { KeyValuePair } from '../../../common/types';
 
-    return axios.post(urlPost, data)
-        .then((response) => {
-            console.log('Data published successfully.');
-            console.log('Dweet.io Response:', response.data);
-            return urlGet;
-        })
-        .catch((error) => {
-            console.error('Error publishing data to Dweet.io:', error);
-            throw error; // Re-throw the error for handling at the caller's level
-        });
+import Logger from './../logger';
+
+export default class DweetSender {
+
+    private logger = Logger.getLogger('/lib/services/dweet-sender.ts');
+
+    constructor () {}
+
+    /** Dweet some data, returning the GET-url to request the data back (assuming it is not overwritten). */
+    public async send(data : KeyValuePair<any>, title : string) : Promise<string> {
+        let options = { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'application/json' } };
+        await fetch(`https://dweet.io/dweet/for/${title}`, options).catch(err => this.logger.error(err));
+        return `https://dweet.io/get/latest/dweet/for/${title}`;
+    }
+
 }
-
-// Test data
-const testData = {
-    title: "Bananer eller epler",
-    Votes: 5,
-    owner: "Torje",
-    double: 2.4
-};
-
-send(testData)
-    .then((url) => {
-        console.log('Retrieval URL:', url);
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });

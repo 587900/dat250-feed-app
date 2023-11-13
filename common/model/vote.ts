@@ -4,7 +4,7 @@ type VoteSelection = 'green' | 'red';
 
 type Vote = {
     userId: string | null,
-    pollId: string,
+    pollCode: string,
     creationUnix: number,
     selection: VoteSelection
 }

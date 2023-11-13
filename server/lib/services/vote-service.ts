@@ -1,20 +1,30 @@
 'use strict';
+
 import Constants from './../constants';
 import Vote from './../../../common/model/vote';
 
 import Services from './../services';
 import Database from './database';
 
-export default class UserService {
-    
-    private db: Database;
-    private collection: string = 'Vote';
+export default class VoteService {
 
-    constructor() {
-        // Initialize the database connection using a service
-        this.db = Services.get<Database>(Constants.Storage);
+    constructor() {}
+
+    public async find(match : Partial<Vote>) : Promise<Vote | null> {
+        let vote = await Services.get<Database>(Constants.Storage).readOne(match, Constants.DBVotes) as Vote | null;
+        if (vote == null) return null;
+        return vote;
     }
 
+    public async create(vote: Vote) : Promise<void> { await Services.get<Database>(Constants.Storage).insertOne(vote, Constants.DBVotes); }
+
+    public async updateOne(match : Partial<Vote>, merge : Partial<Vote>) : Promise<boolean> {
+        if (await this.find(match) == null) return false;
+        await Services.get<Database>(Constants.Storage).updateOne(match, { $set: merge }, Constants.DBVotes);
+        return true;
+    }
+
+    /*
     // Insert a single Vote document
     public async insert(data: Vote) {
         this.db.insertOne(data, this.collection);
@@ -74,4 +84,5 @@ export default class UserService {
     public async readMany(query) {
         return this.db.read(query, this.collection);
     }
+    */
 }
