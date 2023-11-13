@@ -19,6 +19,9 @@ let googleClientID = <string>process.env.google_client_id;
 if (process.env.google_client_secret == null) throw new Error(`IllegalArgumentException environment variable 'google_client_secret' must be set (was not set)`);
 let googleClientSecret = <string>process.env.google_client_secret;
 
+if (process.env.dweet_prefix == null) throw new Error(`IllegalArgumentException environment variable 'dweet_prefix' must be set (was not set)`);
+let dweetPrefix = <string>process.env.dweet_prefix;
+
 export default {
-    isProduction, dbUrl, port, sessionSecret, auth: { googleClientID, googleClientSecret }
+    isProduction, dbUrl, port, sessionSecret, auth: { googleClientID, googleClientSecret }, dweetPrefix
 }

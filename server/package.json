@@ -20,7 +20,9 @@
     "express-session": "^1.17.3",
     "mongodb": "^6.2.0",
     "mongoose": "^7.6.4",
+    "node-fetch": "^2.7.0",
     "passport": "^0.6.0",
+    "passport-custom": "^1.1.1",
     "passport-google-oauth20": "^2.0.0",
     "typescript": "^5.2.2"
   }

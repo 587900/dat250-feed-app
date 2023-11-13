@@ -8,6 +8,7 @@ enum Constants {
     UserService = 'user-service',
     VoteService = 'vote-service',
     AuthService = 'auth-service',
+    DweetSender = 'dweet-sender',
     PassportSetup = 'passport-setup',
 
     // session
@@ -16,7 +17,13 @@ enum Constants {
 
     // web parameters (query or body)
     WebParamSessionRedirectOnAuthSuccess = SessionRedirectOnAuthSuccess,
-    WebParamSessionRedirectOnAuthFailure = SessionRedirectOnAuthFailure
+    WebParamSessionRedirectOnAuthFailure = SessionRedirectOnAuthFailure,
+
+    // database collection names
+    DBPolls = 'polls',
+    DBVotes = 'votes',
+    DBUsers = 'users',
+    DBAUthLinks = 'auth-links',
 }
 
 export default Constants;
