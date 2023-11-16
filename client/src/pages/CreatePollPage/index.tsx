@@ -70,9 +70,9 @@ const CreatePollPage: FC = () => {
 
   const handleSubmit = async () => {
     try {
-      const createdPoll = await createPoll(formState as CreatePollData);
-      console.log("Poll created:", createdPoll);
-      // Handle successful creation
+        const createdPoll = await createPoll((formState as unknown) as CreatePollData);
+        console.log('Poll created:', createdPoll);
+        // Handle successful creation
     } catch (error) {
       // Handle errors
       console.error("Error creating poll:", error);

@@ -122,7 +122,7 @@ const Navbar: React.FC = () => {
             {isPhone ? null : (
               <>
                 <Link
-                  to="/"
+                  to="/my-polls"
                   className="me-auto"
                   style={{ backgroundColor: "inherit", textDecoration: "none" }}
                 >

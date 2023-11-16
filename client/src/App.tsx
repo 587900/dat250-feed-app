@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage"; // Make sure the import path is correct
 import LoginPage from "./pages/LoginPage"; // Make sure the import path is correct
 import CreatePollPage from "./pages/CreatePollPage";
+import MyPollsPage from "./pages/MyPollsPage";
 import { theme } from "./theme";
 import { AuthProvider } from "./components/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -20,8 +21,10 @@ const App: FC = () => {
           <Route path="/create-poll" element={
               <ProtectedRoute>
                 <CreatePollPage />
+          
               </ProtectedRoute>
             } />
+            <Route path="/my-polls" element={<MyPollsPage />}/>
         </Routes>
       </Router>
       </AuthProvider>

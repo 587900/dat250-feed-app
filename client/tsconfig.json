@@ -16,6 +16,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "noImplicitAny": false, // Disabled for Typescript inexperience
     "isolatedModules": true,
     "noImplicitAny": false, // Disabled for Typescript inexperience
     "noEmit": true,

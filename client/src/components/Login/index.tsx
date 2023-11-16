@@ -77,7 +77,7 @@ const Login: FC = () => {
   
 
   const handleGoogleLogin = () => {
-    const redirect = encodeURI("http://localhost:3000?auth=true");
+    const redirect = encodeURI("http://localhost:3000");
     window.location.href = `http://localhost:8080/auth/google?auth_redirect_success=${redirect}`;
   };
 
@@ -238,7 +238,7 @@ const Login: FC = () => {
                   margin="normal"
                   type="email"
                   value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
+                  onChange={(e:any) => setLoginEmail(e.target.value)}
                 />
                 <TextField
                   fullWidth
@@ -246,7 +246,7 @@ const Login: FC = () => {
                   margin="normal"
                   type="password"
                   value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
+                  onChange={(e:any) => setLoginPassword(e.target.value)}
                 />
                 <Box
                   display="flex"
@@ -339,7 +339,7 @@ const Login: FC = () => {
                   margin="normal"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e:any) => setEmail(e.target.value)}
                 />
                 <TextField
                   fullWidth
@@ -347,7 +347,7 @@ const Login: FC = () => {
                   margin="normal"
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e:any) => setPassword(e.target.value)}
                 />
                 <TextField
                   fullWidth
@@ -355,7 +355,7 @@ const Login: FC = () => {
                   margin="normal"
                   type="password"
                   value={registerConfirmPassword}
-                  onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                  onChange={(e:any) => setRegisterConfirmPassword(e.target.value)}
                 />
                 <Box display="flex" justifyContent="center" mt={1}>
                   <FormControlLabel
