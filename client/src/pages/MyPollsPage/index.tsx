@@ -10,10 +10,12 @@ import Poll from "../../../../common/model/poll";
 
 const MyPollsPage: FC = () => {
   let [polls, setPolls] = useState<Poll[]>([]);
+  let [rows, setRows] = useState<{id:number,title:string,description:string,private:string}[]>([]);
 
   useEffect(() => {
     getMyPolls().then(data => {
-      setPolls(data);
+      let modified = data.map(e => { return { id: Math.floor(Math.random() * 1000), title: e.title, description: e.description, private: e.private ? 'Yes' : 'No' } });
+      setRows(modified);
     });
   }, []);
 

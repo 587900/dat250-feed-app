@@ -24,7 +24,8 @@ interface FormState {
     duration: number;
     whitelist: string[]; // For private polls
     allowedVoters: string[]; // For public polls
-    code: string;
+    code: string,
+    open: boolean,
 }
 
 const CreatePollPage: FC = () => {
@@ -38,6 +39,7 @@ const CreatePollPage: FC = () => {
     whitelist: [],
     allowedVoters: [],
     code: '',
+    open: true,
   });
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
