@@ -1,6 +1,6 @@
 'use strict';
 
-import { Db, MongoClient, ServerApiVersion } from 'mongodb';
+import { Db, MongoClient } from 'mongodb';
 import { KeyValuePair } from '../../../common/types';
 
 export default class Database {
@@ -9,14 +9,14 @@ export default class Database {
 
     // Create a MongoClient with a MongoClientOptions object to set the Stable API version
     constructor(uri) {
-        let client = new MongoClient(uri, {
+        /* let client = new MongoClient(uri, {
             serverApi: {
                 version: ServerApiVersion.v1,
                 strict: true,
                 deprecationErrors: true,
             }
-        });
-
+        }); */
+        let client = new MongoClient(uri);
         this.db = client.db();
     }
 
