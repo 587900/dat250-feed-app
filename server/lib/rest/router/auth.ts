@@ -14,6 +14,12 @@ export default class AuthRouter {
     public static create() : Router {
         let router = Router();
 
+        router.use('/check', (req, res) => {
+            let user = req.user;
+            if (user == null) return res.send({ authenticated: false });
+            return res.send({ authenticated: true, user });
+        });
+
         // Store redirect urls middleware
         router.use((_req, res, next) => {
             let req = <any>_req;
