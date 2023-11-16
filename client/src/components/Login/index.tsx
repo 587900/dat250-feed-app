@@ -77,7 +77,8 @@ const Login: FC = () => {
   
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/auth/google';
+    const redirect = encodeURI("http://localhost:3000?auth=true");
+    window.location.href = `http://localhost:8080/auth/google?auth_redirect_success=${redirect}`;
   };
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {

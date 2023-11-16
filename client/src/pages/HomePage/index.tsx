@@ -50,8 +50,8 @@ const Home: FC = () => {
     // Function to check auth state
     const checkAuthState = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/user/authState'); // API endpoint to validate token
-            if (response.data.isAuthenticated) {
+            const response = await axios.get('http://localhost:8080/auth/check'); // API endpoint to validate token
+            if (response.data.authenticated) {
                 contextLogin(response.data.user);
             }
         } catch (error) {
