@@ -1,10 +1,11 @@
 // Home.tsx
-import React, { FC } from "react";
+import React, { FC, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { IconButton, Box, useTheme } from "@mui/material";
 import { DataGrid, GridCellParams } from "@mui/x-data-grid";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Navbar from "../../components/Navbar";
+import { getFrontPagePolls } from "../../services/pollService";
 import './index.css'
 
 const columns = [
@@ -27,6 +28,7 @@ const columns = [
   },
 ];
 
+/*
 const rows = [
   { id: 1, creator: 'Frank Ove', title: 'Pizza eller Taco', private: 'No' },
   { id: 2, creator: 'Odd Jostein', title: 'Ingen Lekse', private: 'Yes' },
@@ -40,9 +42,21 @@ const rows = [
   { id: 10, creator: 'Emilie Tanstad', title: 'Ny bybane?', private: 'No' },
   // ... other rows
 ];
+*/
+
+type LocalPoll = { id: number, creator: string, title: string, private: string }
 
 const Home: FC = () => {
   const theme = useTheme();
+
+  let [rows, setRows] = useState<LocalPoll[]>([]);
+  useEffect(() => {
+    getFrontPagePolls().then(data => {
+      let modified = data.map(e => { return { id: Math.floor(Math.random() * 1000), creator: 'not-implemented', title: e.title, private: e.private ? 'Yes' : 'No' } });
+      setRows(modified);
+    });
+  }, []);
+
   return (
     <div style={{ margin: 0, padding: 0, overflowX: "hidden" }}>
       <Navbar />

@@ -48,7 +48,7 @@ const MyPollsPage: FC = () => {
 
   useEffect(() => {
     getMyPolls().then(data => {
-      let modified = data.map(e => { return { id: Math.floor(Math.random() * 10), title: e.title, description: e.description, private: e.private ? 'Yes' : 'No' } });
+      let modified = data.map(e => { return { id: Math.floor(Math.random() * 1000), title: e.title, description: e.description, private: e.private ? 'Yes' : 'No' } });
       setRows(modified);
     });
   }, []);
