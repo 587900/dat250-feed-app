@@ -1,10 +1,12 @@
 // Home.tsx
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { IconButton, Box, useTheme } from "@mui/material";
 import { DataGrid, GridCellParams } from "@mui/x-data-grid";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Navbar from "../../components/Navbar";
+import { useAuth } from "../../components/AuthContext";
+import axios from "axios";
 import './index.css'
 
 const columns = [
@@ -43,6 +45,23 @@ const rows = [
 
 const Home: FC = () => {
   const theme = useTheme();
+  const { login: contextLogin } = useAuth();
+  useEffect(() => {
+    // Function to check auth state
+    const checkAuthState = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/api/user/authState'); // API endpoint to validate token
+            if (response.data.isAuthenticated) {
+                contextLogin(response.data.user);
+            }
+        } catch (error) {
+            console.error('Authentication failed', error);
+        }
+    };
+
+    checkAuthState();
+}, []);
+
   return (
     <div style={{ margin: 0, padding: 0, overflowX: "hidden" }}>
       <Navbar />

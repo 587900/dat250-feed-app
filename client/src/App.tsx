@@ -5,19 +5,27 @@ import HomePage from "./pages/HomePage"; // Make sure the import path is correct
 import LoginPage from "./pages/LoginPage"; // Make sure the import path is correct
 import CreatePollPage from "./pages/CreatePollPage";
 import { theme } from "./theme";
+import { AuthProvider } from "./components/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const App: FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
+      <AuthProvider>
+        <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/create-poll" element={<CreatePollPage />}/>
-          {/* Add more Routes here as needed */}
+          <Route path="/create-poll" element={
+              <ProtectedRoute>
+                <CreatePollPage />
+              </ProtectedRoute>
+            } />
         </Routes>
       </Router>
+      </AuthProvider>
+      
     </ThemeProvider>
   );
 };
