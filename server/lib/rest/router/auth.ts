@@ -28,6 +28,31 @@ export default class AuthRouter {
             next();
         });
 
+        router.get('/logout', (req, res) => {
+            req.logout((err: Error): void => {
+                if (err) {
+                    res.status(500).send('Error logging out');
+                    return;
+                }
+                
+                if (req.session) {
+                    req.session.destroy((err: Error): void => {
+                        if (err) {
+                            res.status(500).send('Failed to destroy session');
+                            return;
+                        }
+                        res.clearCookie('connect.sid');
+                        res.send({ success: true });
+                    });
+                } else {
+                    res.status(500).send('Session not found');
+                }
+            });
+        });
+        
+        
+        
+
         router.use('/google', this.basic('google'));
         router.use('/iot-device', this.crbasic('iot-device'));
 

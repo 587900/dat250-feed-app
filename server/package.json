@@ -11,6 +11,7 @@
   },
   "author": "Gruppe 1 - DAT250 HVL 2023",
   "dependencies": {
+    "@types/express-session": "^1.17.10",
     "@types/mongoose": "^5.11.97",
     "@types/node": "^20.8.9",
     "@types/passport": "^1.0.14",

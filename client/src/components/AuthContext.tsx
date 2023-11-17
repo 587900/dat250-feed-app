@@ -1,7 +1,12 @@
 // AuthContext.tsx
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { LoginUserData } from '../types/clientTypes';
-
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { LoginUserData } from "../types/clientTypes";
 
 type AuthContextType = {
   user: LoginUserData | null;
@@ -19,20 +24,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<LoginUserData | null>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
   }, []);
 
   const login = (newUser: LoginUserData) => {
-    localStorage.setItem('user', JSON.stringify(newUser));
+    localStorage.setItem("user", JSON.stringify(newUser));
     setUser(newUser);
   };
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await fetch("http://localhost:8080/auth/logout", {
+        credentials: "include",
+      });
+      localStorage.removeItem("user");
+      setUser(null);
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
   };
 
   return (
@@ -45,7 +57,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
