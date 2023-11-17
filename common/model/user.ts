@@ -11,6 +11,7 @@ type User = {
     claims: Claim[],
     firstName: string,
     lastName: string,
+    username : string
 }
 
 export default User;

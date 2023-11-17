@@ -1,9 +1,19 @@
 'use strict';
 
+import Constants from './../constants';
+import Services from './../services';
+import Database from './database';
+
 export default class UserService {
     
     constructor() {}
 
+    public async getUsernames(regex : string) : Promise<string[]> {
+        let db = Services.get<Database>(Constants.Storage);
+        let result = await db.aggregate([{ $match: { username: regex } }, { $project: { username: 1 } }], Constants.DBUsers);
+        if (result == null) return [];
+        return result.map(r => r.username);
+    }
     /*
     // Insert a single User document
     public async insert(data: User) {

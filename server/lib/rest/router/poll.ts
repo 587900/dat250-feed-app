@@ -102,6 +102,7 @@ export default class PollRouter {
             //let data = polls.safeParse(req.bodyQuery, admin = true);
 
             // TODO: check admin or owner
+            logger.warn(`poll update is not implemented`);
 
             // polls.update(id, data);
             logger.info(`User with id '${user.id}' updated poll with code '${code}'`);

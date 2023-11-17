@@ -3,6 +3,7 @@
 import Config from './../config';
 import Constants from './../constants';
 import Poll, { AllowedVoteType } from './../../../common/model/poll';
+import APIPoll from './../../../common/model/api-poll';
 
 import Services from './../services';
 import Database from './database';
@@ -15,6 +16,12 @@ import DweetSender from './dweet-sender';
 
 export default class PollService {
     
+    private static addOwnerUsername = [
+        { $lookup: { from: 'users', localField: 'ownerId', foreignField: 'id', as: 'owner' } },
+        { $unwind: '$owner' },
+        { $addFields: { username: '$owner.firstName' } }
+    ];
+
     private db: Database;
 
     constructor() {
@@ -22,14 +29,17 @@ export default class PollService {
     }
 
     /** @returns a list of Polls that can be presented to a user. */
-    public async collect() : Promise<Poll[]> {
-        return await this.db.find({}, Constants.DBPolls) as Poll[];
+    public async collect() : Promise<APIPoll[]> {
+        //return await this.db.find({}, Constants.DBPolls) as Poll[];
+        return await this.db.aggregate(PollService.addOwnerUsername, Constants.DBPolls) as APIPoll[];
     }
 
     public async find(code : string) : Promise<Poll | null> {
-        let poll = await this.db.readOne({ code }, Constants.DBPolls) as Poll | null;
-        if (poll == null) return null;
-        return poll;
+        //let poll = await this.db.readOne({ code }, Constants.DBPolls) as Poll | null;
+        //let polls = await this.db.findAggregate({ code }, PollSerivce.addOwnerUsername, Constants.DBPolls) as Poll[] | null;
+        let polls = await this.db.aggregate([{ $match: { code } }, ...PollService.addOwnerUsername], Constants.DBPolls) as Poll[] | null;
+        if (polls == null || polls.length == 0 || polls[0] == null) return null;
+        return polls[0];
     }
 
     /** @returns true if successful, false is already exists by code */
@@ -120,7 +130,7 @@ export default class PollService {
     public canUserSee(poll : Poll, user : User) : boolean {
         if (user.claims.includes('admin')) return true;
 
-        if (poll.private) return poll.whitelist.includes(user.id);
+        if (poll.private) return poll.whitelist.includes(user.username);
 
         for (let claim of user.claims) {
             if (poll.allowedVoters.includes(<AllowedVoteType>claim)) return true;

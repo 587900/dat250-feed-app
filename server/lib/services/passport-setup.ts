@@ -33,7 +33,8 @@ export default class PassportSetup {
             }, async (accessToken, refreshToken, profile, cb) => {
                 let user = await auth.getUserByGoogleId(profile.id);
                 if (user == null) {
-                    user = await auth.create(profile.name.givenName, profile.name.familyName, [ 'web-user' ]);
+                    user = await auth.create(profile.name.givenName, profile.name.familyName, [ 'web-user' ], profile.email);
+                    if (user == null) return cb('failed to create account, username already exists', null);
                     let success = await auth.linkGoogleAccount(user.id, profile.id);
                     if (!success) {
                         auth.delete(user.id);

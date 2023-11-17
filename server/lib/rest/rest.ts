@@ -11,7 +11,7 @@ import bodyQuery from './middleware/body-query';
 import passport from 'passport';
 import cors from 'cors';
 
-import UserRouter from './user-router';
+import UserRouter from './router/user';
 import AuthRouter from './router/auth';
 import PollRouter from './router/poll';
 

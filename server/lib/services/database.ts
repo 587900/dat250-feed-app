@@ -21,23 +21,24 @@ export default class Database {
         await this.db.command({ ping: 1 });
     }
 
+    public async aggregate(aggregation : KeyValuePair<any>[], collection : string) : Promise<any[] | null> {
+        return await this.db.collection(collection).aggregate(aggregation).toArray();
+    }
+
     // Update the first document that matches the filter with the new data in updateDocument
     public async updateOne(match : KeyValuePair<any>, statement : KeyValuePair<any>, collection : string) : Promise<void> {
         await this.db.collection(collection).updateOne(match, statement);
+    }
+
+    // Insert a single document into a collection in MongoDB
+    async insertOne(document, collection: string) {
+        await this.db.collection(collection).insertOne(document);
     }
 
     // Update all documents that match the filter with the new data in updateDocument
     async updateMany(filter, updateDocument, collection: string) {
         const myColl = this.db.collection(collection);
         return await myColl.updateMany(filter, updateDocument);
-    }
-
-    // Insert a single document into a collection in MongoDB
-    async insertOne(document, collection: string) {
-        const myColl = this.db.collection(collection);
-
-        const result = await myColl.insertOne(document);
-        console.log(`A document was inserted with the _id: ${result.insertedId}`);
     }
 
     // Insert multiple documents into a collection in MongoDB

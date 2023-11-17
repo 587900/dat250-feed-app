@@ -20,8 +20,9 @@ export default class AuthService {
     }
 
     // TODO: This should be moved to the 'user service'
-    public async create(firstName : string, lastName : string, claims : Claim[]) : Promise<User> {
-        let user : User = { id: this.generateId(), creationUnix: Date.now(), lastLoggedInUnix: Date.now(), lastLoggedInWith: 'none', firstName, lastName, claims };
+    public async create(firstName : string, lastName : string, claims : Claim[], username : string) : Promise<User | null> {
+        if (await this.getUserByUsername(username) != null) return null;
+        let user : User = { id: this.generateId(), creationUnix: Date.now(), lastLoggedInUnix: Date.now(), lastLoggedInWith: 'none', firstName, lastName, claims, username };
         await Services.get<Database>(Constants.Storage).insertOne(user, Constants.DBUsers);
         return user;
     }
@@ -37,6 +38,18 @@ export default class AuthService {
         let id = '';
         for (let i = 0; i < 16; i++) id += alphabet[Math.floor(Math.random() * alphabet.length)];
         return id;
+    }
+
+    public async getUserByUsername(username : string) : Promise<User | null> {
+        let db = Services.get<Database>(Constants.Storage);
+        let results = await db.find({ username }, Constants.DBUsers) as User[];
+        if (results == null) return null;
+        if (results.length == 0) return null;
+
+        let user = results[0];
+        if (user == null) return null;
+
+        return user;
     }
 
     public async getUserById(id : string) : Promise<User | null> {
