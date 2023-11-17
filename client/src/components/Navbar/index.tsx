@@ -14,10 +14,11 @@ import {
   CircularProgress,
   Fab,
   useMediaQuery,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import { AccountCircle, Login } from "@mui/icons-material";
-import MoreIcon from '@mui/icons-material/MoreVert'
+import { useAuth } from "../../components/AuthContext";
+import MoreIcon from "@mui/icons-material/MoreVert";
 import Logo from "../../assets/Logo/alternative-FeedApp-logo.png";
 
 const Navbar: React.FC = () => {
@@ -25,6 +26,7 @@ const Navbar: React.FC = () => {
     useState<HTMLElement | null>(null);
 
   const theme = useTheme();
+  const { user, logout } = useAuth();
   const [loadingProfile, setLoadingProfile] = useState<boolean>(true);
 
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -62,11 +64,22 @@ const Navbar: React.FC = () => {
         <Typography color="primary">Create Poll</Typography>
       </MenuItem>
 
-      <Link to="/login" rel="noopener follow" color="inherit" style={{ textDecoration: 'none' }}>
-        <MenuItem onClick={handleMobileMenuClose}>
-          <Typography color='primary'>Login</Typography>
-        </MenuItem>
-      </Link>
+      <MenuItem onClick={handleMobileMenuClose}>
+        {user ? (
+          <Typography color="primary" onClick={logout}>
+            Logout
+          </Typography>
+        ) : (
+          <Link
+            to="/login"
+            rel="noopener follow"
+            color="inherit"
+            style={{ textDecoration: "none" }}
+          >
+            <Typography color="primary">Login</Typography>
+          </Link>
+        )}
+      </MenuItem>
     </Menu>
   );
 
@@ -111,7 +124,7 @@ const Navbar: React.FC = () => {
                 [theme.breakpoints.down("md")]: {
                   width: "60%",
                 },
-                width: '50%',
+                width: "50%",
               }}
               marginLeft={1}
               marginRight={1}
@@ -159,25 +172,51 @@ const Navbar: React.FC = () => {
                     Create Poll
                   </Typography>
                 </Link>
-                <Link
-                  to="/login"
-                  className="me-auto"
-                  style={{ backgroundColor: "inherit", textDecoration: "none" }}
-                >
-                  <Typography
-                    variant="h5"
-                    color="primary"
-                    sx={{
-                      p: 1,
-                      mx: 1,
-                      border: "solid 2px",
-                      borderColor: "primary.light",
-                      borderRadius: "10px",
+                {user ? (
+                  <Button
+                    onClick={logout}
+                    style={{
+                      backgroundColor: "inherit",
+                      textDecoration: "none",
                     }}
                   >
-                    Login
-                  </Typography>
-                </Link>
+                    <Typography
+                      variant="h5"
+                      color="primary"
+                      sx={{
+                        p: 1,
+                        mx: 1,
+                        border: "solid 2px",
+                        borderColor: "primary.light",
+                        borderRadius: "10px",
+                      }}
+                    >
+                      Logout
+                    </Typography>
+                  </Button>
+                ) : (
+                  <Link
+                    to="/login"
+                    style={{
+                      backgroundColor: "inherit",
+                      textDecoration: "none",
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      color="primary"
+                      sx={{
+                        p: 1,
+                        mx: 1,
+                        border: "solid 2px",
+                        borderColor: "primary.light",
+                        borderRadius: "10px",
+                      }}
+                    >
+                      Login
+                    </Typography>
+                  </Link>
+                )}
               </>
             )}
             {!isPhone ? null : (
