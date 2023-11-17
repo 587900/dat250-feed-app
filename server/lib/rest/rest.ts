@@ -3,14 +3,13 @@
 import http from 'http';
 import Config from './../config';
 
-const cors = require('cors');
-
 import express from 'express';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import * as Middlewares from './middleware/generic';
 import bodyQuery from './middleware/body-query';
 import passport from 'passport';
+import cors from 'cors';
 
 import UserRouter from './user-router';
 import AuthRouter from './router/auth';
