@@ -1,6 +1,8 @@
 'use strict';
 
 type KeyValuePair<T> = { [key : string] : T }
-type KeyToValue<K extends string | number, V> = { [key : K] : V }
+type KeyToValue<K extends string | number, V> = {
+    [key in K]: V;
+};
 
-export { KeyValuePair, KeyToValue };
+export type { KeyValuePair, KeyToValue };

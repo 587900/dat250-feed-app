@@ -4,7 +4,7 @@ import {
 } from '@mui/material';
 import Navbar from '../../components/Navbar';
 import { createPoll } from '../../services/pollService';
-import { CreatePollData } from '../../types/pollTypes';
+import { CreatePollData } from '../../types/clientTypes';
 
 // Function to generate random alphanumeric code
 const generateRandomCode = () => {
@@ -19,12 +19,13 @@ const generateRandomCode = () => {
 interface FormState {
     title: string;
     description: string;
-    isPrivate: boolean;
+    private: boolean;
     timed: boolean;
     duration: number;
     whitelist: string[]; // For private polls
     allowedVoters: string[]; // For public polls
-    code: string;
+    code: string,
+    open: boolean,
 }
 
 const CreatePollPage: FC = () => {
@@ -32,12 +33,13 @@ const CreatePollPage: FC = () => {
   const [formState, setFormState] = useState<FormState>({
     title: '',
     description: '',
-    isPrivate: false,
+    private: false,
     timed: false, // Default is untimed
     duration: 60, // Default duration set to 60 minutes
     whitelist: [],
     allowedVoters: [],
     code: '',
+    open: true,
   });
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,10 +76,10 @@ const CreatePollPage: FC = () => {
         console.log('Poll created:', createdPoll);
         // Handle successful creation
     } catch (error) {
-        // Handle errors
-        console.error('Error creating poll:', error);
+      // Handle errors
+      console.error("Error creating poll:", error);
     }
-};
+  };
 
   return (
     <div>
@@ -117,9 +119,9 @@ const CreatePollPage: FC = () => {
         <FormControlLabel
           control={
             <Switch
-              checked={formState.isPrivate}
+              checked={formState.private}
               onChange={handleInputChange}
-              name="isPrivate"
+              name="private"
             />
           }
           label="Private Poll"

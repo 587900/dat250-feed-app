@@ -1,4 +1,5 @@
-import React, { useState, useEffect, FC } from "react";
+import React, { useState, FC } from "react";
+import axios from "axios";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Alert,
@@ -26,8 +27,12 @@ import backgroundImage from "../../assets/background-images/schoolground-backgro
 import Logo from "../../assets/Logo/alternative-FeedApp-logo.png";
 
 import { Stack } from "@mui/system";
+import { login, register } from "../../services/authService";
+import { useAuth } from "../AuthContext";
 
 const Login: FC = () => {
+  const navigate = useNavigate();
+  const { login: contextLogin } = useAuth();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [error, setError] = useState<string>("");
 
@@ -37,7 +42,8 @@ const Login: FC = () => {
 
   // Register form state
   const [phone, setPhone] = useState<string>("");
-  const [name, setName] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [registerConfirmPassword, setRegisterConfirmPassword] =
@@ -47,24 +53,32 @@ const Login: FC = () => {
 
   const handleLogin = async () => {
     try {
-      return;
+      const { user, token } = await login(loginEmail, loginPassword);
+      localStorage.setItem('token', token); // Handle token storage
+      contextLogin(user); // Set user context
+      navigate('/'); // Redirect to dashboard or another route
     } catch (error: any) {
-      setError(error.message);
+      setError(error.response?.data || 'Login failed');
     }
   };
 
-  const handleSignUp = () => {
-    if (validateRegisterForm()) {
-      return;
+  const handleSignUp = async () => {
+    if (!validateRegisterForm()) return;
+  
+    try {
+      const { user, token } = await register({ firstName, lastName, email, password });
+      console.log(user); // User data
+      // Navigate to login page or dashboard
+    } catch (error: any) {
+      setError(error.response?.data || 'Registration failed');
     }
   };
-
-  const handleFacebookLogin = () => {
-    return;
-  };
+  
+  
 
   const handleGoogleLogin = () => {
-    return;
+    const redirect = encodeURI("http://localhost:3000");
+    window.location.href = `http://localhost:8080/auth/google?auth_redirect_success=${redirect}`;
   };
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -76,10 +90,15 @@ const Login: FC = () => {
   };
 
   const validateRegisterForm = () => {
-    if (name.trim() === "") {
-      setError("Name is required");
+    if (firstName.trim() === "") {
+      setError("First name is required");
       return false;
     }
+
+    if (lastName.trim() === "") {
+        setError("Last Name is required");
+        return false;
+      }
 
     if (email.trim() === "") {
       setError("Email is required");
@@ -219,7 +238,7 @@ const Login: FC = () => {
                   margin="normal"
                   type="email"
                   value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
+                  onChange={(e:any) => setLoginEmail(e.target.value)}
                 />
                 <TextField
                   fullWidth
@@ -227,7 +246,7 @@ const Login: FC = () => {
                   margin="normal"
                   type="password"
                   value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
+                  onChange={(e:any) => setLoginPassword(e.target.value)}
                 />
                 <Box
                   display="flex"
@@ -251,7 +270,7 @@ const Login: FC = () => {
                   color="primary"
                   sx={{ mt: 2 }}
                   onClick={() => {
-                    return;
+                    handleLogin();
                   }}
                 >
                   Sign in
@@ -285,22 +304,6 @@ const Login: FC = () => {
                       Google
                     </Typography>
                   </Button>
-                  {/* <Button
-                      variant="outlined"
-                      onClick={handleFacebookLogin}
-                      startIcon={
-                        <FacebookIcon fontSize="large" color="primary" />
-                      }
-                      
-                    >
-                      <Typography
-                        variant="h5"
-                        sx={{ letterSpacing: 1, fontWeight: "bold", textTransform: "none" }}
-                        color="primary"
-                      >
-                        Facebook
-                      </Typography>
-                    </Button> */}
                 </Box>
                 <Typography align="center" variant="body1" sx={{ mt: 2 }}>
                   or:
@@ -316,26 +319,19 @@ const Login: FC = () => {
                 )}
                 <TextField
                   fullWidth
-                  label="Name"
+                  label="First Name"
                   margin="normal"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                 />
-                <Grid container spacing={2}>
-                  <Grid item xs={7}>
-                    <TextField
-                      fullWidth
-                      label="Phone"
-                      margin="normal"
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => {
-                        const input = e.target.value;
-                        setPhone(input);
-                      }}
-                    />
-                  </Grid>
-                </Grid>
+                <TextField
+                  fullWidth
+                  label="Last Name"
+                  margin="normal"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+            
 
                 <TextField
                   fullWidth
@@ -343,7 +339,7 @@ const Login: FC = () => {
                   margin="normal"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e:any) => setEmail(e.target.value)}
                 />
                 <TextField
                   fullWidth
@@ -351,7 +347,7 @@ const Login: FC = () => {
                   margin="normal"
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e:any) => setPassword(e.target.value)}
                 />
                 <TextField
                   fullWidth
@@ -359,7 +355,7 @@ const Login: FC = () => {
                   margin="normal"
                   type="password"
                   value={registerConfirmPassword}
-                  onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                  onChange={(e:any) => setRegisterConfirmPassword(e.target.value)}
                 />
                 <Box display="flex" justifyContent="center" mt={1}>
                   <FormControlLabel
@@ -373,9 +369,7 @@ const Login: FC = () => {
                   color="primary"
                   sx={{ mt: 2 }}
                   onClick={() => {
-                    if (validateRegisterForm()) {
-                      return;
-                    }
+                    handleSignUp()
                   }}
                 >
                   Sign up

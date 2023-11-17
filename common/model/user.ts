@@ -10,8 +10,8 @@ type User = {
     lastLoggedInUnix: number
     claims: Claim[],
     firstName: string,
-    lastName: string
+    lastName: string,
 }
 
 export default User;
-export { LastLoggedInWith, Claim }
+export type { LastLoggedInWith, Claim }

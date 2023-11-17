@@ -35,4 +35,4 @@ type Poll = {
 } & (PrivatePoll | PublicPoll) & (TimedPoll | UntimedPoll)
 
 export default Poll;
-export { AllowedVoteType };
+export type { AllowedVoteType };

@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import * as Middlewares from './middleware/generic';
 import bodyQuery from './middleware/body-query';
 import passport from 'passport';
+import cors from 'cors';
 
 import UserRouter from './user-router';
 import AuthRouter from './router/auth';
@@ -30,6 +31,7 @@ export default class REST {
         app.use(express.urlencoded({ extended: true }));
         app.use(express.json());
         app.use(bodyQuery());
+        app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
         app.use(passport.initialize());
         app.use(passport.session());

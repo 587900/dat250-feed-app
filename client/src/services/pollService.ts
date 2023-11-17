@@ -1,29 +1,36 @@
-// pollService.ts
 import axios from 'axios';
-import { CreatePollData } from '../types/pollTypes';
+import { CreatePollData } from '../types/clientTypes';
 import Poll from '../../../common/model/poll';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:8080/api';
 
 export const createPoll = async (pollData: CreatePollData) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/resource/poll`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      //const response = await axios.post(`${API_BASE_URL}/resource/poll/`, pollData);
+      const response = await fetch(`${API_BASE_URL}/resource/poll/`, {
+        method: "POST",
+        credentials: "include",
         body: JSON.stringify(pollData),
+        headers: { "Content-Type": "application/json" }
+      }).then(async res => {
+        return {
+          code: res.status,
+          data: res.status == 200 ? await res.json() : await res.text(),
+        };
       });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log('Poll created:', data);
+      console.log("Poll created:", response);
       // Handle successful creation
     } catch (error) {
-      console.error('Error creating poll:', error);
+      if (axios.isAxiosError(error)) {
+        console.error(
+          "Error creating poll:",
+          error.response?.data || error.message
+        );
+      } else {
+        console.error("Unexpected error:", error);
+      }
     }
-  };
+};
 
 export const getMyPolls = async () : Promise<Poll[]> => {
   let p : Poll = { code: 'XYZ', title: 'Poll from PollService', description: 'My poll', private: true,
