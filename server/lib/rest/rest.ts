@@ -32,19 +32,10 @@ export default class REST {
         app.use(express.urlencoded({ extended: true }));
         app.use(express.json());
         app.use(bodyQuery());
-        app.use(cors({
-            origin: 'http://localhost:3000' 
-        }));
+        app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
         app.use(passport.initialize());
         app.use(passport.session());
-        app.get('/api/user/authState', (req, res) => {
-            if (req.isAuthenticated()) {
-                res.json({ isAuthenticated: true, user: req.user });
-            } else {
-                res.json({ isAuthenticated: false });
-            }
-        });
 
         this.router = express.Router();
         let router = this.router;
