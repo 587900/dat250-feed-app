@@ -82,5 +82,11 @@ export const getPolls = async (filter : string = '') : Promise<APIPoll[]> => {
       data: res.status == 200 ? await res.json() : await res.text()
     }
   });
-  return response;
+
+  if (response.status != 200) {
+    console.error(`getPolls${filter} got status code: '${response.status}', returning empty list...`);
+    return [];
+  }
+
+  return response.data as APIPoll[];
 }
