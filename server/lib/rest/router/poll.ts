@@ -27,7 +27,10 @@ export default class PollRouter {
             let user = req.user;
             if (!user) return res.status(401).send('You must be logged in');
 
-            let collection = await polls.collect();
+            let filter = req.bodyQuery.filter || '';
+
+            let match = (filter == 'mine' ? { ownerId: user.id } : {});
+            let collection = await polls.collect(match);
             let filtered = collection.filter(p => polls.canUserSee(p, user!));
 
             return res.send(filtered);

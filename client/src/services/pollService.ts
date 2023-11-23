@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { CreatePollData } from '../types/clientTypes';
 import Poll from '../../../common/model/poll';
+import APIPoll from '../../../common/model/api-poll';
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
@@ -32,14 +33,19 @@ export const createPoll = async (pollData: CreatePollData) => {
     }
 };
 
-export const getMyPolls = async () : Promise<Poll[]> => {
+export const getMyPolls = async () : Promise<APIPoll[]> => {
+  return getPolls('mine');
+  /*
   let p : Poll = { code: 'XYZ', title: 'Poll from PollService', description: 'My poll', private: true,
                    open: true, ownerId: 'test-user', creationUnix: 0, cachedVotes: { green: 1, red: 0 },
                    timed: false, whitelist: [] };
   return Promise.resolve([p]);
+  */
 }
 
-export const getFrontPagePolls = async() : Promise<Poll[]> => {
+export const getFrontPagePolls = async() : Promise<APIPoll[]> => {
+  return getPolls();
+  /*
   let data = [
   { id: 1, creator: 'Frank Ove', title: 'Pizza eller Taco', private: 'No' },
   { id: 2, creator: 'Odd Jostein', title: 'Ingen Lekse', private: 'Yes' },
@@ -62,4 +68,19 @@ export const getFrontPagePolls = async() : Promise<Poll[]> => {
   });
 
   return Promise.resolve(polls);
+  */
+}
+
+export const getPolls = async (filter : string = '') : Promise<APIPoll[]> => {
+  if (filter != '') filter = `?filter=${filter}`;
+  const response = await fetch(`${API_BASE_URL}/resource/poll/${filter}`, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' }
+  }).then(async res => {
+    return {
+      code: res.status,
+      data: res.status == 200 ? await res.json() : await res.text()
+    }
+  });
+  return response;
 }

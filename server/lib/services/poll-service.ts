@@ -30,15 +30,14 @@ export default class PollService {
     }
 
     /** @returns a list of Polls that can be presented to a user. */
-    public async collect() : Promise<APIPoll[]> {
-        //return await this.db.find({}, Constants.DBPolls) as Poll[];
-        return await this.db.aggregate(PollService.addOwnerUsername, Constants.DBPolls) as APIPoll[];
+    public async collect(match : KeyValuePair<any>) : Promise<APIPoll[]> {
+        let options = [{ $match: match }, ...PollService.addOwnerUsername];
+        return await this.db.aggregate(options, Constants.DBPolls) as APIPoll[];
     }
 
     public async find(code : string) : Promise<Poll | null> {
-        //let poll = await this.db.readOne({ code }, Constants.DBPolls) as Poll | null;
-        //let polls = await this.db.findAggregate({ code }, PollSerivce.addOwnerUsername, Constants.DBPolls) as Poll[] | null;
-        let polls = await this.db.aggregate([{ $match: { code } }, ...PollService.addOwnerUsername], Constants.DBPolls) as Poll[] | null;
+        let options = [{ $match: { code } }, ...PollService.addOwnerUsername];
+        let polls = await this.db.aggregate(options, Constants.DBPolls) as Poll[] | null;
         if (polls == null || polls.length == 0 || polls[0] == null) return null;
         return polls[0];
     }
@@ -131,8 +130,9 @@ export default class PollService {
     /** @returns whether or not a user can see and vote on a poll */
     public canUserSee(poll : Poll, user : User) : boolean {
         if (user.claims.includes('admin')) return true;
+        if (poll.ownerId == user.id) return true;
 
-        if (poll.private) return poll.whitelist.includes(user.username);
+        if (poll.private) return poll.whitelist.includes(user.id);
 
         for (let claim of user.claims) {
             if (poll.allowedVoters.includes(<AllowedVoteType>claim)) return true;
