@@ -8,6 +8,7 @@ import APIPoll from './../../../common/model/api-poll';
 import Services from './../services';
 import Database from './database';
 import VoteService from './vote-service';
+import UserService from './user-service';
 
 import { KeyValuePair } from '../../../common/types';
 import User from '../../../common/model/user';
@@ -78,7 +79,7 @@ export default class PollService {
      * @param data The data to parse
      * @param admin If to allow admin-only fields
      */
-    public safeParse(data : KeyValuePair<any>, owner : string, creationUnix : number = Date.now()) : { success: true, data: Poll } | { success: false, missing: string[], error?: string } {
+    public async safeParse(data : KeyValuePair<any>, owner : string, creationUnix : number = Date.now()) : Promise<{ success: true, data: Poll } | { success: false, missing: string[], error?: string }> {
 
         // do fields
         let fields = ['code', 'open', 'title', 'description', 'timed', 'private'];
@@ -117,7 +118,8 @@ export default class PollService {
         let allFields = ['code', 'open', 'title', 'description', 'timed', 'private', 'timeoutUnix', 'whitelist', 'allowedVoters'];
         for (let f of allFields) poll[f] = data[f];
 
-        // TODO: whitelist should only contain valid users
+        // whitelist is an array of usernames, should be saved as ids
+        data.whitelist = await Services.get<UserService>(Constants.UserService).usernamesToIds(data.whitelist);
 
         poll.ownerId = owner;
         poll.creationUnix = creationUnix;

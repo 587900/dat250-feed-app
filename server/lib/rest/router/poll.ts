@@ -54,7 +54,7 @@ export default class PollRouter {
             let user = req.user;
             if (!user) return res.status(401).send('You must be logged in');
 
-            let result = polls.safeParse(req.bodyQuery, user.id);
+            let result = await polls.safeParse(req.bodyQuery, user.id);
             if (!result.success) {
                 if (result.error) return res.status(400).send(result.error);
                 return res.status(400).send(`Missing fields: ${result.missing.join(', ')}`);
@@ -99,7 +99,7 @@ export default class PollRouter {
             if (!user) return res.status(401).send('You must be logged in');
 
             let code = req.params['code'];
-            //let data = polls.safeParse(req.bodyQuery, admin = true);
+            //let data = await polls.safeParse(req.bodyQuery, user.id);
 
             // TODO: check admin or owner
             logger.warn(`poll update is not implemented`);

@@ -14,6 +14,13 @@ export default class UserService {
         if (result == null) return [];
         return result.map(r => r.username);
     }
+
+    public async usernamesToIds(usernames : string[]) : Promise<string[]> {
+        let db = Services.get<Database>(Constants.Storage);
+        let result = await db.aggregate([{ $match: { username: { $in: usernames } }}, { $project: { id: 1 } }], Constants.DBUsers);
+        if (result == null) return [];
+        return result.map(r => r.id);
+    }
     /*
     // Insert a single User document
     public async insert(data: User) {
