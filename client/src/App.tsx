@@ -8,6 +8,7 @@ import MyPollsPage from "./pages/MyPollsPage";
 import { theme } from "./theme";
 import { AuthProvider } from "./components/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import VotingPage from "./pages/VotingPage";
 
 const App: FC = () => {
   return (
@@ -15,20 +16,29 @@ const App: FC = () => {
       <CssBaseline />
       <AuthProvider>
         <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/create-poll" element={
-              <ProtectedRoute>
-                <CreatePollPage />
-          
-              </ProtectedRoute>
-            } />
-            <Route path="/my-polls" element={<MyPollsPage />}/>
-        </Routes>
-      </Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/create-poll"
+              element={
+                <ProtectedRoute>
+                  <CreatePollPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-polls"
+              element={
+                <ProtectedRoute>
+                  <MyPollsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/poll/vote/:code" element={<VotingPage />}/>
+          </Routes>
+        </Router>
       </AuthProvider>
-      
     </ThemeProvider>
   );
 };

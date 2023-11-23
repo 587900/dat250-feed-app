@@ -1,10 +1,11 @@
 import React, { FC, useState } from 'react';
 import {
-  Box, TextField, FormControlLabel, Switch, Button, Typography, useTheme, Grid
+  Box, TextField, FormControlLabel, Switch, Button, Typography, useTheme, Grid, Autocomplete
 } from '@mui/material';
 import Navbar from '../../components/Navbar';
 import { createPoll } from '../../services/pollService';
 import { CreatePollData } from '../../types/clientTypes';
+
 
 // Function to generate random alphanumeric code
 const generateRandomCode = () => {
@@ -41,6 +42,25 @@ const CreatePollPage: FC = () => {
     code: '',
     open: true,
   });
+  const [emailInput, setEmailInput] = useState<string>("");
+
+  const handleEmailAdd = (event: React.SyntheticEvent<Element, Event>, value: any) => {
+    // Assuming the value is a string of email
+    if (value && typeof value === 'string' && !formState.whitelist.includes(value)) {
+      setFormState((prev) => ({
+        ...prev,
+        whitelist: [...prev.whitelist, value]
+      }));
+      setEmailInput(""); // Clear the input field after adding
+    }
+  };
+
+  const handleEmailRemove = (email: string) => {
+    setFormState((prev) => ({
+      ...prev,
+      whitelist: prev.whitelist.filter((e) => e !== email)
+    }));
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked, type } = event.target;
@@ -116,18 +136,44 @@ const CreatePollPage: FC = () => {
           multiline
           rows={4}
         />
-        <FormControlLabel
-          control={
-            <Switch
-              checked={formState.private}
-              onChange={handleInputChange}
-              name="private"
-            />
-          }
-          label="Private Poll"
-          labelPlacement="start"
-          sx={{ display: 'block', mt: 2 }}
-        />
+         <FormControlLabel
+        control={<Switch checked={formState.private} onChange={handleInputChange} name="private" />}
+        label="Private Poll"
+        labelPlacement="start"
+        sx={{ display: 'block', my: 2, ml: 0 }}
+      />
+
+      {formState.private && (
+        <>
+          <Autocomplete
+            freeSolo
+            options={[]} // In this case, we don't have predefined options
+            inputValue={emailInput}
+            onInputChange={(event, newInputValue) => setEmailInput(newInputValue)}
+            onChange={handleEmailAdd}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Add Voter Email"
+                variant="outlined"
+                placeholder="Enter email..."
+              />
+            )}
+          />
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+              {formState.whitelist.map((email, index) => (
+                <Grid item xs={12} sm={6} key={index}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography title={email} noWrap sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {email}
+                    </Typography>
+                    <Button onClick={() => handleEmailRemove(email)}>Remove</Button>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+        </>
+      )}
         <Grid container spacing={1} alignItems="center" justifyContent="center" sx={{mt:2}}>
           <Grid item xs={5}>
             <TextField

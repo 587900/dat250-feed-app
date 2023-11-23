@@ -19,7 +19,7 @@ const columns = [
     headerName: "Go to Poll",
     width: 150,
     renderCell: (params: GridCellParams) => (
-      <IconButton color="primary" component={Link} to={`/poll/${params.id}`}>
+      <IconButton color="primary" component={Link} to={`/poll/${params.row.code}`}>
         <ArrowForwardIcon color="primary" />
       </IconButton>
     ),
@@ -47,6 +47,7 @@ type LocalPoll = {
   creator: string;
   title: string;
   private: string;
+  code: string;
 };
 
 const Home: FC = () => {
@@ -65,6 +66,7 @@ const Home: FC = () => {
           id: Math.floor(Math.random() * 1000),
           creator: "not-implemented",
           title: e.title,
+          code: e.code,
           private: e.private ? "Yes" : "No",
         };
       });
