@@ -2,7 +2,7 @@ import React, { FC, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Card, CardContent, Typography, Button } from "@mui/material";
 import Navbar from "../../components/Navbar";
-//import { getPollByCode } from "../../services/pollService"; // Assume this service function exists
+//import { getPollByCode } from "../../services/pollService"; /
 import Poll from "../../../../common/model/poll";
 
 const VotingPage: FC = () => {

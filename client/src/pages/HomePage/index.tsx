@@ -19,7 +19,7 @@ const columns = [
     headerName: "Go to Poll",
     width: 150,
     renderCell: (params: GridCellParams) => (
-      <IconButton color="primary" component={Link} to={`/poll/${params.row.code}`}>
+      <IconButton color="primary" component={Link} to={`/poll/vote/${params.row.code}`}>
         <ArrowForwardIcon color="primary" />
       </IconButton>
     ),

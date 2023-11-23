@@ -83,8 +83,8 @@ export const getPolls = async (filter : string = '') : Promise<APIPoll[]> => {
     }
   });
 
-  if (response.status != 200) {
-    console.error(`getPolls${filter} got status code: '${response.status}', returning empty list...`);
+  if (response.code != 200) {
+    console.error(`getPolls${filter} got status code: '${response.code}', returning empty list...`);
     return [];
   }
 
