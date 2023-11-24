@@ -1,44 +1,65 @@
 import React, { FC, useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Box, Card, CardContent, Typography, Button } from "@mui/material";
+import { useParams } from "react-router-dom";
+import { Box, Card, CardContent, Typography, Button, Stack, CircularProgress } from "@mui/material";
 import Navbar from "../../components/Navbar";
-//import { getPollByCode } from "../../services/pollService"; /
-import Poll from "../../../../common/model/poll";
+import { getPollById } from "../../services/pollService";
+import APIPoll from "../../../../common/model/api-poll";
 
 const VotingPage: FC = () => {
-  const [poll, setPoll] = useState<Poll | null>(null);
-  const { code } = useParams<{ code: string }>();
-  const navigate = useNavigate();
+  const [poll, setPoll] = useState<APIPoll | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const params = useParams<{ code?: string }>();
+  const code = params.code;
 
-  /* useEffect(() => {
-    getPollByCode(code).then(data => {
-      if (data) {
-        setPoll(data);
-      } else {
-        navigate("/"); // Redirect to a 'Not Found' page or home
-      }
-    });
-  }, [code, history]); */
+  useEffect(() => {
+    if (code) {
+      getPollById(code).then((data) => {
+        if (data) {
+          setPoll(data);
+        } else {
+          setPoll(null);
+        }
+        setIsLoading(false);
+      });
+    } else {
+      setIsLoading(false);
+    }
+  }, [code]);
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   if (!poll) {
-    return <Typography>Loading...</Typography>; // Or a loading spinner
+    return (
+      <Box textAlign='center' mt={4}>
+        <Navbar />
+        <Typography variant="h4">Poll not found</Typography>
+        <Typography variant="body1">The poll you are trying to access does not exist, may have been removed, or it may be private.</Typography>
+      </Box>
+    );
   }
 
   return (
-    <div style={{ margin: 0, padding: 0, overflowX: "hidden" }}>
+    <div>
       <Navbar />
-      <Box sx={{ p: 4 }}>
-        <Card>
+      <Box p={4} display="flex" flexDirection="column" alignItems="center">
+        <Card raised sx={{ width: '100%', maxWidth: 600 }}>
           <CardContent>
-            <Typography variant="h5">{poll.title}</Typography>
-            <Typography>{poll.description}</Typography>
-            {/* Display timer if applicable */}
-            <Button variant="contained" color="primary">
-              Yes
-            </Button>
-            <Button variant="contained" color="secondary">
-              No
-            </Button>
+            <Typography variant="h4" gutterBottom textAlign="center">
+              {poll.title}
+            </Typography>
+            <Typography variant="body1" mb={4} textAlign="center">
+              {poll.description}
+            </Typography>
+            <Stack direction="row" spacing={2} justifyContent="center">
+              <Button variant="contained" color="primary" size="large">Yes</Button>
+              <Button variant="contained" color="secondary" size="large">No</Button>
+            </Stack>
           </CardContent>
         </Card>
       </Box>

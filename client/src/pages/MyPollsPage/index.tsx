@@ -43,7 +43,7 @@ const MyPollsPage: FC = () => {
                   <IconButton
                     color="primary"
                     component={Link}
-                    to={`/poll/${poll.code}`}
+                    to={`/poll/vote/${poll.code}`}
                   >
                     <ArrowForwardIcon />
                   </IconButton>

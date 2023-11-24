@@ -4,7 +4,7 @@ import { LoginUserData } from "../types/clientTypes";
 
 
 const api = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: "http://localhost:8080/auth",
 });
 
 export const login = async (
@@ -12,7 +12,7 @@ export const login = async (
   password: string
 ): Promise<{ user: LoginUserData; token: string }> => {
   const response = await api.post<{ user: LoginUserData; token: string }>(
-    "/user/login",
+    "/local/login",
     { email, password }
   );
   return response.data;
@@ -25,7 +25,7 @@ export const register = async (userData: {
   password: string;
 }): Promise<{ user: LoginUserData; token: string }> => {
   const response = await api.post<{ user: LoginUserData; token: string }>(
-    "/user/register",
+    "/local/register",
     userData
   );
   return response.data;

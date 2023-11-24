@@ -16,6 +16,7 @@ export default class UserService {
     }
 
     public async usernamesToIds(usernames : string[]) : Promise<string[]> {
+        if (!usernames) return [];
         let db = Services.get<Database>(Constants.Storage);
         let result = await db.aggregate([{ $match: { username: { $in: usernames } }}, { $project: { id: 1 } }], Constants.DBUsers);
         if (result == null) return [];

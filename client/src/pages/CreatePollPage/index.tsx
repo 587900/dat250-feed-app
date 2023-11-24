@@ -1,16 +1,26 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useEffect } from "react";
 import {
-  Box, TextField, FormControlLabel, Switch, Button, Typography, useTheme, Grid, Autocomplete
-} from '@mui/material';
-import Navbar from '../../components/Navbar';
-import { createPoll } from '../../services/pollService';
-import { CreatePollData } from '../../types/clientTypes';
-
+  Box,
+  TextField,
+  FormControlLabel,
+  Switch,
+  Button,
+  Typography,
+  useTheme,
+  Grid,
+  Autocomplete,
+  Stack,
+} from "@mui/material";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
+import Navbar from "../../components/Navbar";
+import { createPoll } from "../../services/pollService";
+import { CreatePollData } from "../../types/clientTypes";
 
 // Function to generate random alphanumeric code
 const generateRandomCode = () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
   for (let i = 0; i < 7; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
@@ -18,38 +28,62 @@ const generateRandomCode = () => {
 };
 
 interface FormState {
-    title: string;
-    description: string;
-    private: boolean;
-    timed: boolean;
-    duration: number;
-    whitelist: string[]; // For private polls
-    allowedVoters: string[]; // For public polls
-    code: string,
-    open: boolean,
+  title: string;
+  description: string;
+  private: boolean;
+  timed: boolean;
+  timeoutUnix: number;
+  duration: number;
+  whitelist: string[]; // For private polls
+  allowedVoters: string[]; // For public polls
+  code: string;
+  open: boolean;
 }
 
 const CreatePollPage: FC = () => {
   const theme = useTheme();
   const [formState, setFormState] = useState<FormState>({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     private: false,
     timed: false, // Default is untimed
+    timeoutUnix: 0,
     duration: 60, // Default duration set to 60 minutes
-    whitelist: [],
+    whitelist: [""],
     allowedVoters: [],
-    code: '',
+    code: "",
     open: true,
   });
   const [emailInput, setEmailInput] = useState<string>("");
+  const [selectedDateTime, setSelectedDateTime] = useState<Date | null>(null);
+  const [timeoutUnix, setTimeoutUnix] = useState<number>(0);
 
-  const handleEmailAdd = (event: React.SyntheticEvent<Element, Event>, value: any) => {
+  const handleDateTimeChange = (newValue: Date | null) => {
+    setSelectedDateTime(newValue);
+    if (newValue) {
+      const newTimeoutUnix = newValue.getTime();
+      console.log('new value:', newTimeoutUnix);
+      setTimeoutUnix(newTimeoutUnix); // Directly setting the Unix timestamp
+    }
+  };
+
+  useEffect(() => {
+    console.log('Updated timeoutUnix:', formState.timeoutUnix);
+  }, [formState.timeoutUnix]);
+
+  const handleEmailAdd = (
+    event: React.SyntheticEvent<Element, Event>,
+    value: any
+  ) => {
     // Assuming the value is a string of email
-    if (value && typeof value === 'string' && !formState.whitelist.includes(value)) {
+    if (
+      value &&
+      typeof value === "string" &&
+      !formState.whitelist.includes(value)
+    ) {
       setFormState((prev) => ({
         ...prev,
-        whitelist: [...prev.whitelist, value]
+        whitelist: [...prev.whitelist, value],
       }));
       setEmailInput(""); // Clear the input field after adding
     }
@@ -58,28 +92,27 @@ const CreatePollPage: FC = () => {
   const handleEmailRemove = (email: string) => {
     setFormState((prev) => ({
       ...prev,
-      whitelist: prev.whitelist.filter((e) => e !== email)
+      whitelist: prev.whitelist.filter((e) => e !== email),
     }));
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked, type } = event.target;
-    
+
     // If the input is 'duration' and the value is greater than 120, return early
-    if (name === 'duration' && type === 'number' && +value > 120) {
+    if (name === "duration" && type === "number" && +value > 120) {
       setFormState((prev) => ({
         ...prev,
         [name]: 120, // Set to maximum value
       }));
       return; // Prevents the state from being updated beyond the max value
     }
-  
+
     setFormState((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
-  
 
   // Function to handle the random code generation
   const handleGenerateCode = () => {
@@ -92,11 +125,21 @@ const CreatePollPage: FC = () => {
 
   const handleSubmit = async () => {
     try {
-        const createdPoll = await createPoll((formState as unknown) as CreatePollData);
-        console.log('Poll created:', createdPoll);
-        // Handle successful creation
+      let pollData: CreatePollData = {
+        code: formState.code,
+        title: formState.title,
+        description: formState.description,
+        private: formState.private,
+        open: formState.open,
+        timed: formState.timed,
+        ...(formState.private && { whitelist: formState.whitelist }),
+        ...(!formState.private && { allowedVoters: formState.allowedVoters }),
+        ...(formState.timed && { timeoutUnix }), // Use the separate timeoutUnix state
+      };
+
+      const createdPoll = await createPoll(pollData);
+      console.log("Poll created:", createdPoll);
     } catch (error) {
-      // Handle errors
       console.error("Error creating poll:", error);
     }
   };
@@ -108,11 +151,11 @@ const CreatePollPage: FC = () => {
         sx={{
           mt: 4,
           px: 3,
-          [theme.breakpoints.down('md')]: {
-            width: '100%',
+          [theme.breakpoints.down("md")]: {
+            width: "100%",
           },
-          maxWidth: '600px',
-          mx: 'auto',
+          maxWidth: "600px",
+          mx: "auto",
         }}
       >
         <Typography variant="h4" gutterBottom>
@@ -136,55 +179,100 @@ const CreatePollPage: FC = () => {
           multiline
           rows={4}
         />
-         <FormControlLabel
-        control={<Switch checked={formState.private} onChange={handleInputChange} name="private" />}
-        label="Private Poll"
-        labelPlacement="start"
-        sx={{ display: 'block', my: 2, ml: 0 }}
-      />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={formState.private}
+              onChange={handleInputChange}
+              name="private"
+            />
+          }
+          label="Private Poll"
+          labelPlacement="start"
+          sx={{ display: "block", my: 2, ml: 0 }}
+        />
 
-      {formState.private && (
-        <>
-          <Autocomplete
-            freeSolo
-            options={[]} // In this case, we don't have predefined options
-            inputValue={emailInput}
-            onInputChange={(event, newInputValue) => setEmailInput(newInputValue)}
-            onChange={handleEmailAdd}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Add Voter Email"
-                variant="outlined"
-                placeholder="Enter email..."
-              />
-            )}
-          />
-          <Grid container spacing={2} sx={{ mt: 2 }}>
+        {formState.private && (
+          <>
+            <Autocomplete
+              freeSolo
+              options={[]} // In this case, we don't have predefined options
+              inputValue={emailInput}
+              onInputChange={(event, newInputValue) =>
+                setEmailInput(newInputValue)
+              }
+              onChange={handleEmailAdd}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Add Voter Email"
+                  variant="outlined"
+                  placeholder="Enter email..."
+                />
+              )}
+            />
+            <Grid container spacing={2} sx={{ mt: 2 }}>
               {formState.whitelist.map((email, index) => (
                 <Grid item xs={12} sm={6} key={index}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Typography title={email} noWrap sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Typography
+                      title={email}
+                      noWrap
+                      sx={{
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
                       {email}
                     </Typography>
-                    <Button onClick={() => handleEmailRemove(email)}>Remove</Button>
+                    <Button onClick={() => handleEmailRemove(email)}>
+                      Remove
+                    </Button>
                   </Box>
                 </Grid>
               ))}
             </Grid>
-        </>
-      )}
-        <Grid container spacing={1} alignItems="center" justifyContent="center" sx={{mt:2}}>
+          </>
+        )}
+        <Grid
+          container
+          spacing={1}
+          alignItems="center"
+          justifyContent="center"
+          sx={{ mt: 2 }}
+        >
           <Grid item xs={5}>
-            <TextField
-              fullWidth
-              type="number"
-              label="Duration (minutes)"
-              name="duration"
-              value={formState.duration}
-              onChange={handleInputChange}
-              inputProps={{ step: 1, min: 1, max: 120, }} // Only allow positive numbers
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={formState.timed}
+                  onChange={handleInputChange}
+                  name="timed"
+                />
+              }
+              label="Timed Poll"
+              labelPlacement="start"
+              sx={{ display: "block", my: 2, ml: 0 }}
             />
+
+            {formState.timed && (
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Stack spacing={3} sx={{ mt: 2 }}>
+                  <DateTimePicker
+                    label="Poll Closing Time"
+                    value={selectedDateTime}
+                    onChange={handleDateTimeChange}
+                  />
+                </Stack>
+              </LocalizationProvider>
+            )}
           </Grid>
           <Grid item xs={5}>
             <TextField
@@ -202,7 +290,12 @@ const CreatePollPage: FC = () => {
             </Button>
           </Grid>
         </Grid>
-        <Button variant="contained" color="primary" onClick={handleSubmit} sx={{ mt: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          sx={{ mt: 2 }}
+        >
           Create Poll
         </Button>
       </Box>

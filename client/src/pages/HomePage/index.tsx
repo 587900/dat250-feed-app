@@ -64,7 +64,7 @@ const Home: FC = () => {
       let modified = data.map((e) => {
         return {
           id: Math.floor(Math.random() * 1000),
-          creator: "not-implemented",
+          creator:  e.ownerId,
           title: e.title,
           code: e.code,
           private: e.private ? "Yes" : "No",
@@ -83,7 +83,7 @@ const Home: FC = () => {
           [theme.breakpoints.down("md")]: {
             width: "100%",
           },
-          width: "50%",
+          width: "60%",
           px: 1,
           mx: "auto",
         }}

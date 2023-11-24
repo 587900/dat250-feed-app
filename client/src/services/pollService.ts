@@ -71,11 +71,25 @@ export const getFrontPagePolls = async() : Promise<APIPoll[]> => {
   */
 }
 
-export const getPollById = async (id : string) : Promise<APIPoll | null> => {
-  let result = await getPolls(id);
-  if (result.length == 0) return null;
-  return result[0] as APIPoll | null;
-}
+export const getPollById = async (id: string): Promise<APIPoll | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/resource/poll/${id}`, {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data as APIPoll;
+    } else {
+      console.error(`Failed to fetch poll with id ${id}, status code: ${response.status}`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error fetching poll with id ${id}:`, error);
+    return null;
+  }
+};
+
 
 export const getPolls = async (filter : string = '') : Promise<APIPoll[]> => {
   const response = await fetch(`${API_BASE_URL}/resource/poll/${filter}`, {
@@ -92,6 +106,6 @@ export const getPolls = async (filter : string = '') : Promise<APIPoll[]> => {
     console.error(`getPolls${filter} got status code: '${response.code}', returning empty list...`);
     return [];
   }
-
+  console.log('Response from getPolls:', response.data);
   return response.data as APIPoll[];
 }

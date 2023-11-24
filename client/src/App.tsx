@@ -9,6 +9,7 @@ import { theme } from "./theme";
 import { AuthProvider } from "./components/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import VotingPage from "./pages/VotingPage";
+import Missing from "./pages/Missing";
 
 const App: FC = () => {
   return (
@@ -35,7 +36,10 @@ const App: FC = () => {
                 </ProtectedRoute>
               }
             />
-            <Route path="/poll/vote/:code" element={<VotingPage />}/>
+            <Route path="/poll/vote/:code" element={<VotingPage />} />
+
+            {/* catch all */}
+            <Route path="*" element={<Missing />} />
           </Routes>
         </Router>
       </AuthProvider>
