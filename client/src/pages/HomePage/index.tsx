@@ -64,7 +64,7 @@ const Home: FC = () => {
       let modified = data.map((e) => {
         return {
           id: Math.floor(Math.random() * 1000),
-          creator:  e.ownerId,
+          creator:  e.username,
           title: e.title,
           code: e.code,
           private: e.private ? "Yes" : "No",
