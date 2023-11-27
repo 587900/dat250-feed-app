@@ -85,3 +85,24 @@ export const getPolls = async (filter : string = '') : Promise<APIPoll[]> => {
   console.log('Response from getPolls:', response.data);
   return response.data as APIPoll[];
 }
+
+export const voteOnPoll = async (code: string, selection: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/resource/poll/${code}/vote`, {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({ selection }),
+      headers: { "Content-Type": "application/json" }
+    });
+    if (response.ok) {
+      console.log("Vote successful");
+      return true;
+    } else {
+      console.error(`Failed to vote on poll with code ${code}, status code: ${response.status}`);
+      return false;
+    }
+  } catch (error) {
+    console.error(`Error voting on poll with code ${code}:`, error);
+    return false;
+  }
+};

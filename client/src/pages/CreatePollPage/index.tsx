@@ -10,6 +10,10 @@ import {
   Grid,
   Autocomplete,
   Stack,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  Radio
 } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
@@ -40,6 +44,11 @@ interface FormState {
   open: boolean;
 }
 
+const voterOptions = [
+  { label: "IoT Device", value: "iot-device" },
+  { label: "Web User", value: "web-user" },
+];
+
 const CreatePollPage: FC = () => {
   const theme = useTheme();
   const [formState, setFormState] = useState<FormState>({
@@ -62,14 +71,17 @@ const CreatePollPage: FC = () => {
     setSelectedDateTime(newValue);
     if (newValue) {
       const newTimeoutUnix = newValue.getTime();
-      console.log('new value:', newTimeoutUnix);
+      console.log("new value:", newTimeoutUnix);
       setTimeoutUnix(newTimeoutUnix); // Directly setting the Unix timestamp
     }
   };
 
-  useEffect(() => {
-    console.log('Updated timeoutUnix:', formState.timeoutUnix);
-  }, [formState.timeoutUnix]);
+  const handleVoterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormState((prev) => ({
+      ...prev,
+      allowedVoters: [event.target.value],
+    }));
+  };
 
   const handleEmailAdd = (
     event: React.SyntheticEvent<Element, Event>,
@@ -108,10 +120,20 @@ const CreatePollPage: FC = () => {
       return; // Prevents the state from being updated beyond the max value
     }
 
-    setFormState((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    setFormState((prev) => {
+      // Update the form state based on the input type
+      const updatedState = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      };
+  
+      // If the 'private' switch is being turned on, clear the allowedVoters
+      if (name === 'private' && checked) {
+        updatedState.allowedVoters = [];
+      }
+  
+      return updatedState;
+    });
   };
 
   // Function to handle the random code generation
@@ -132,17 +154,22 @@ const CreatePollPage: FC = () => {
         private: formState.private,
         open: formState.open,
         timed: formState.timed,
-        ...(formState.private && { whitelist: formState.whitelist }),
-        ...(!formState.private && { allowedVoters: formState.allowedVoters }),
         ...(formState.timed && { timeoutUnix }), // Use the separate timeoutUnix state
+        ...(!formState.private && { allowedVoters: formState.allowedVoters }),
       };
-
+  
+      // Conditionally add whitelist if private is true
+      if (formState.private) {
+        pollData.whitelist = formState.whitelist;
+      }
+  
       const createdPoll = await createPoll(pollData);
       console.log("Poll created:", createdPoll);
     } catch (error) {
       console.error("Error creating poll:", error);
     }
   };
+  
 
   return (
     <div>
@@ -244,17 +271,38 @@ const CreatePollPage: FC = () => {
         <Grid
           container
           spacing={1}
-          alignItems="center"
-          justifyContent="center"
+          alignItems="start"
+          justifyContent="space-between"
           sx={{ mt: 2 }}
         >
-          <Grid item xs={5}>
+          <Grid item xs={12}>
+              <FormControl component="fieldset" sx={{ mt: 2 }}>
+                <FormLabel component="legend">Allowed Voters</FormLabel>
+                <RadioGroup
+                  row
+                  name="allowedVoters"
+                  onChange={handleVoterChange}
+                >
+                  {voterOptions.map((option) => (
+                    <FormControlLabel
+                      key={option.value}
+                      value={option.value}
+                      control={<Radio />}
+                      label={option.label}
+                      disabled={formState.private}
+                    />
+                  ))}
+                </RadioGroup>
+              </FormControl>
+          </Grid>
+          <Grid item xs={12}>
             <FormControlLabel
               control={
                 <Switch
                   checked={formState.timed}
                   onChange={handleInputChange}
                   name="timed"
+                  sx={{ml:0}}
                 />
               }
               label="Timed Poll"
@@ -274,6 +322,14 @@ const CreatePollPage: FC = () => {
               </LocalizationProvider>
             )}
           </Grid>
+        </Grid>
+        <Grid
+          container
+          spacing={1}
+          alignItems="center"
+          justifyContent="start"
+          sx={{ mt: 2 }}
+        >
           <Grid item xs={5}>
             <TextField
               fullWidth
@@ -281,7 +337,7 @@ const CreatePollPage: FC = () => {
               name="code"
               value={formState.code}
               onChange={handleInputChange}
-              inputProps={{ readOnly: true }} // Limit to 7 characters
+              inputProps={{ readOnly: true }} // Limit to 7 characters by forcing an unchangeable generated code
             />
           </Grid>
           <Grid item xs={2}>
