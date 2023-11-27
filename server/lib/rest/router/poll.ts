@@ -7,6 +7,7 @@ import StaticImplements from './../../decorator/static-implements';
 import Services from './../../services';
 import Constants from './../../constants';
 import PollService from './../../services/poll-service';
+import VoteService from './../../services/vote-service';
 
 import Util from './../util';
 
@@ -22,6 +23,7 @@ export default class PollRouter {
         let router = Router();
 
         const polls = Services.get<PollService>(Constants.PollService);
+        const votes = Services.get<VoteService>(Constants.VoteService);
 
         router.get('/', async (req, res) => {
             let user = req.user;
@@ -136,6 +138,18 @@ export default class PollRouter {
             logger.info(`User with id '${user.id}' voted on poll with code '${code}' (selection: ${selection})`);
 
             return res.send(result.vote);
+        });
+
+        router.get('/:code/vote', async (req, res) => {
+            let user = req.user;
+            if (!user) return res.status(401).send('You must be logged in');
+
+            let code = req.params['code'];
+
+            let result = await votes.find({ pollCode: code, userId: user.id });
+            if (result == null) return res.sendStatus(404);
+
+            return res.send(result);
         });
 
         router.put('/:code/close', async (req, res) => {
