@@ -130,8 +130,8 @@ export default class PollRouter {
             if (!result.success) {
                 if (result.reason == 'no-poll') return res.sendStatus(404);
                 if (result.reason == 'invalid-selection') return res.status(400).send(`Invalid value for 'selection': ${selection}`);
-                //if (result.reason == 'permissions') return res.status(403).send('You do not have permission to vote on this poll');
-                if (result.reason == 'permissions') return res.sendStatus(404);
+                if (result.reason == 'permissions') return res.status(403).send('You do not have permission to vote on this poll');
+                //if (result.reason == 'permissions') return res.sendStatus(404);
                 return res.sendStatus(500);
             }
 
