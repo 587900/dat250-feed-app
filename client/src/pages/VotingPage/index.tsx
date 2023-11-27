@@ -7,6 +7,7 @@ import APIPoll from "../../../../common/model/api-poll";
 
 const VotingPage: FC = () => {
   const [poll, setPoll] = useState<APIPoll | null>(null);
+  const [countdown, setCountdown] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const params = useParams<{ code?: string }>();
   const code = params.code;
@@ -16,6 +17,7 @@ const VotingPage: FC = () => {
       getPollById(code).then((data) => {
         if (data) {
           setPoll(data);
+          startCountdown(data);
         } else {
           setPoll(null);
         }
@@ -25,6 +27,31 @@ const VotingPage: FC = () => {
       setIsLoading(false);
     }
   }, [code]);
+
+  const startCountdown = (pollData) => {
+    if (pollData.timed && pollData.timeoutUnix) {
+      const countdownTimer = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = pollData.timeoutUnix - now; // Use pollData.timeoutUnix
+  
+        if (distance < 0) {
+          clearInterval(countdownTimer);
+          setCountdown("Poll closed");
+          return;
+        }
+  
+        let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  
+        setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      }, 1000);
+  
+      return () => clearInterval(countdownTimer);
+    }
+  };
+  
 
   if (isLoading) {
     return (
@@ -64,8 +91,13 @@ const VotingPage: FC = () => {
       <Box p={4} display="flex" flexDirection="column" alignItems="center">
         <Card raised sx={{ width: "100%", maxWidth: 600 }}>
           <CardContent>
+            {poll && poll.timed && (
+              <Typography variant="h6" gutterBottom textAlign="center">
+                Time Remaining: {countdown}
+              </Typography>
+            )}
             <Typography variant="h4" gutterBottom textAlign="center">
-              {poll.title}
+              {poll?.title}
             </Typography>
             <Typography variant="body1" mb={4} textAlign="center">
               {poll.description}
