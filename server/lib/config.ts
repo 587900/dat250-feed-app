@@ -22,6 +22,11 @@ let googleClientSecret = <string>process.env.google_client_secret;
 if (process.env.dweet_prefix == null) throw new Error(`IllegalArgumentException environment variable 'dweet_prefix' must be set (was not set)`);
 let dweetPrefix = <string>process.env.dweet_prefix;
 
+let mqttUrl = process.env.mqtt_url || null;
+
 export default {
-    isProduction, dbUrl, port, sessionSecret, auth: { googleClientID, googleClientSecret }, dweetPrefix
+    // mandatory
+    isProduction, dbUrl, port, sessionSecret, auth: { googleClientID, googleClientSecret }, dweetPrefix,
+    // optional
+    mqttUrl
 }

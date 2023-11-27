@@ -5,4 +5,4 @@ type KeyToValue<K extends string | number, V> = {
     [key in K]: V;
 };
 
-export type { KeyValuePair, KeyToValue };
+export { KeyValuePair, KeyToValue };

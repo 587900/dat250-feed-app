@@ -9,5 +9,5 @@ type Vote = {
     selection: VoteSelection
 }
 
-export type { VoteSelection };
+export { VoteSelection };
 export default Vote;

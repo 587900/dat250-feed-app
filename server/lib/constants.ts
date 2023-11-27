@@ -9,6 +9,8 @@ enum Constants {
     VoteService = 'vote-service',
     AuthService = 'auth-service',
     DweetSender = 'dweet-sender',
+    MQTTSender = 'mqtt-sender',
+    EventMaster = 'event-master',
     PassportSetup = 'passport-setup',
 
     // session
