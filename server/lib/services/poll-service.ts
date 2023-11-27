@@ -134,8 +134,18 @@ export default class PollService {
         return { success: true, data: poll as Poll };
     }
 
-    /** @returns whether or not a user can see and vote on a poll */
+    /** @returns whether or not a user can view a poll */
     public canUserSee(poll : Poll, user : User) : boolean {
+        if (user.claims.includes('admin')) return true;
+        if (poll.ownerId == user.id) return true;
+
+        if (poll.private) return poll.whitelist.includes(user.id);
+
+        return true; // poll is public
+    }
+
+    /** @returns whether or not a user can vote on a poll */
+    public canUserVote(poll : Poll, user : User) : boolean {
         if (user.claims.includes('admin')) return true;
         if (poll.ownerId == user.id) return true;
 
@@ -159,7 +169,7 @@ export default class PollService {
         let poll = await this.find(pollCode);
         if (poll == null) return { success: false, reason: 'no-poll' };
 
-        if (!this.canUserSee(poll, user)) return { success: false, reason: 'permissions' };
+        if (!this.canUserVote(poll, user)) return { success: false, reason: 'permissions' };
 
         let votes = Services.get<VoteService>(Constants.VoteService);
         let vote = await votes.find({ pollCode: poll.code, userId: user.id });
