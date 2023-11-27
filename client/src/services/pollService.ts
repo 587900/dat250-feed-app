@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { CreatePollData } from '../types/clientTypes';
-import Poll from '../../../common/model/poll';
 import APIPoll from '../../../common/model/api-poll';
 
 const API_BASE_URL = 'http://localhost:8080/api';
@@ -16,7 +15,7 @@ export const createPoll = async (pollData: CreatePollData) => {
       }).then(async res => {
         return {
           code: res.status,
-          data: res.status == 200 ? await res.json() : await res.text(),
+          data: res.status === 200 ? await res.json() : await res.text(),
         };
       });
       console.log("Poll created:", response);
@@ -74,11 +73,11 @@ export const getPolls = async (filter : string = '') : Promise<APIPoll[]> => {
   }).then(async res => {
     return {
       code: res.status,
-      data: res.status == 200 ? await res.json() : await res.text()
+      data: res.status === 200 ? await res.json() : await res.text()
     }
   });
 
-  if (response.code != 200) {
+  if (response.code !== 200) {
     console.error(`getPolls${filter} got status code: '${response.code}', returning empty list...`);
     return [];
   }
@@ -106,3 +105,24 @@ export const voteOnPoll = async (code: string, selection: string): Promise<boole
     return false;
   }
 };
+
+export const getUserVoteForPoll = async (code: string) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/resource/poll/${code}/vote`, {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" }
+    });
+    if (response.ok) {
+      const vote = await response.json();
+      return vote;
+    } else {
+      console.error(`Failed to fetch vote for poll with code ${code}, status code: ${response.status}`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error fetching vote for poll with code ${code}:`, error);
+    return null;
+  }
+};
+
