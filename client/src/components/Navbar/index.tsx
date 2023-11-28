@@ -27,8 +27,7 @@ const Navbar: React.FC = () => {
 
   const theme = useTheme();
   const { user, logout } = useAuth();
-  const [loadingProfile, setLoadingProfile] = useState<boolean>(true);
-
+  
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const isPhone = useMediaQuery(theme.breakpoints.down("md"));
 

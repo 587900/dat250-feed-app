@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage"; // Make sure the import path is correct
@@ -10,6 +10,7 @@ import { AuthProvider } from "./components/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import VotingPage from "./pages/VotingPage";
 import Missing from "./pages/Missing";
+import { useAuth } from "./components/AuthContext";
 
 const App: FC = () => {
   return (

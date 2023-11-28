@@ -27,7 +27,7 @@ const MyPollsPage: FC = () => {
               <Card key={index} sx={{ maxWidth: 345, mx: "auto" }}>
                 <CardContent sx={{ textAlign: "center" }}>
                   <Typography variant="h6" color="text.secondary">
-                    {poll.title}
+                    {poll.title} {poll.cachedVotes.green} {poll.cachedVotes.red}
                   </Typography>
                   <Typography
                     gutterBottom

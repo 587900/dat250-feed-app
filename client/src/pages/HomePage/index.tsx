@@ -52,10 +52,24 @@ type LocalPoll = {
 
 const Home: FC = () => {
   const theme = useTheme();
-  const { user, login } = useAuth();
+  const { logout, login } = useAuth();
 
   useEffect(() => {
-    checkAuthState((user) => login(user));
+    const checkAuthState = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/auth/check', { credentials: 'include' });
+        const data = await response.json();
+        if (data.authenticated) {
+          login(data.user); // Update context
+        } else {
+          logout(); // Clear context and localStorage
+        }
+      } catch (error) {
+        console.error('Error checking auth status', error);
+      }
+    };
+  
+    checkAuthState();
   }, []);
 
   let [rows, setRows] = useState<LocalPoll[]>([]);
