@@ -12,7 +12,7 @@ export const login = async (
   password: string
 ): Promise<{ user: LoginUserData; token: string }> => {
   const response = await api.post<{ user: LoginUserData; token: string }>(
-    "/local/login",
+    "/local",
     { email, password }
   );
   return response.data;
