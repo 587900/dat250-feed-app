@@ -135,7 +135,7 @@ export default class PollRouter {
                 return res.sendStatus(500);
             }
 
-            logger.info(`User with id '${user.id}' voted on poll with code '${code}' (selection: ${selection})`);
+            logger.info(`User with id '${user.id}' voted on poll with code '${code}' (selection: ${selection}, changed: ${result.changed})`);
 
             return res.send(result.vote);
         });

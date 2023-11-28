@@ -20,9 +20,9 @@ export default class AuthService {
     }
 
     // TODO: This should be moved to the 'user service'
-    public async create(firstName : string, lastName : string, claims : Claim[], username : string) : Promise<User | null> {
+    public async create(firstName : string, lastName : string, claims : Claim[], username : string, guest : boolean) : Promise<User | null> {
         if (await this.getUserByUsername(username) != null) return null;
-        let user : User = { id: this.generateId(), creationUnix: Date.now(), lastLoggedInUnix: Date.now(), lastLoggedInWith: 'none', firstName, lastName, claims, username };
+        let user : User = { id: this.generateId(), creationUnix: Date.now(), lastLoggedInUnix: Date.now(), lastLoggedInWith: 'none', firstName, lastName, claims, username, guest };
         await Services.get<Database>(Constants.Storage).insertOne(user, Constants.DBUsers);
         return user;
     }
@@ -64,6 +64,12 @@ export default class AuthService {
         return user;
     }
 
+    public async getUserByLocalGuestId(localGuestId : string) : Promise<User | null> {
+        let userId = (await this.getAuthLink('local-guest', localGuestId))?.userId;
+        if (userId == null) return null;
+        return await this.getUserById(userId);
+    }
+
     public async getUserByGoogleId(googleId : string) : Promise<User | null> {
         let userId = (await this.getAuthLink('google-auth', googleId))?.userId;
         if (userId == null) return null;
@@ -74,6 +80,12 @@ export default class AuthService {
         let userId = (await this.getAuthLink('iot-auth', iotToken))?.userId;
         if (userId == null) return null;
         return await this.getUserById(userId);
+    }
+
+    public async linkLocalGuestAccount(userId : string, localGuestId : string) : Promise<boolean> {
+        if (await this.getAuthLink('local-guest', localGuestId) != null) return false;
+        await this.createAuthLink(userId, 'local-guest', localGuestId);
+        return true;
     }
 
     public async linkGoogleAccount(userId : string, googleId : string) : Promise<boolean> {

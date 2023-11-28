@@ -40,7 +40,7 @@ export default class AuthRouter {
     private static check(req, res) {
         let user = req.user;
         if (user == null) return res.send({ authenticated: false });
-        return res.send({ authenticated: true, user });
+        return res.send({ authenticated: true, user, guest: user.guest });
     }
 
     private static logout(req, res) {

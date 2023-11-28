@@ -1,7 +1,7 @@
 'use strict';
 
-type Claim = 'web-user' | 'admin' | 'iot-device';
-type LastLoggedInWith = 'google' | 'iot-device' | 'none';
+type Claim = 'web-user' | 'admin' | 'iot-device' | 'web-user-guest';
+type LastLoggedInWith = 'google' | 'iot-device' | 'none' | 'local' | 'local-guest';
 
 type User = {
     id: string,
@@ -11,7 +11,8 @@ type User = {
     claims: Claim[],
     firstName: string,
     lastName: string,
-    username : string
+    username : string,
+    guest : boolean
 }
 
 export default User;

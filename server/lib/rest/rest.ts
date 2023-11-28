@@ -27,7 +27,7 @@ export default class REST {
         let app = this.app;
 
         app.use(cookieParser());
-        app.use(session({ secret: Config.sessionSecret, resave: true, saveUninitialized: true }));
+        app.use(session({ secret: Config.sessionSecret, resave: true, saveUninitialized: true, cookie: { maxAge: 3 * 30 * 24 * 60 * 60 } })); // 3 months
         app.use(express.urlencoded({ extended: true }));
         app.use(express.json());
         app.use(bodyQuery());
@@ -35,6 +35,12 @@ export default class REST {
 
         app.use(passport.initialize());
         app.use(passport.session());
+
+        // passport guest authentication
+        app.use((req, res, next) => {
+            if (req.user) return next();
+            passport.authenticate('local-guest', { session: true })(req, res, next);
+        });
 
         this.router = express.Router();
         let router = this.router;

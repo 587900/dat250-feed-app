@@ -163,7 +163,7 @@ export default class PollService {
         return user.id == poll.ownerId;
     }
 
-    public async vote(pollCode : string, user : User, selection : VoteSelection) : Promise<{ success: true, vote: Vote } | { success: false, reason: 'no-poll' | 'permissions' | 'invalid-selection' }> {
+    public async vote(pollCode : string, user : User, selection : VoteSelection) : Promise<{ success: true, vote: Vote, changed: boolean } | { success: false, reason: 'no-poll' | 'permissions' | 'invalid-selection' }> {
         if (!['green', 'red'].includes(selection)) return { success: false, reason: 'invalid-selection' };
 
         let poll = await this.find(pollCode);
@@ -183,7 +183,7 @@ export default class PollService {
             promises.push(this.db.updateOne({ code: poll.code }, { $inc: { [`cachedVotes.${selection}`]: 1 } }, Constants.DBPolls));
             totalVotes[selection]++;
         } else {
-            if (vote.selection == selection) return { success: true, vote }; // no change
+            if (vote.selection == selection) return { success: true, vote, changed: false }; // no change
             let creationUnix = Date.now();
             promises.push(votes.updateOne({ pollCode: poll.code, userId: user.id }, { selection, creationUnix }));
             promises.push(this.db.updateOne({ code: poll.code }, { $inc: { [`cachedVotes.${selection}`]: 1, [`cachedVotes.${vote.selection}`]: -1 } }, Constants.DBPolls));
@@ -197,7 +197,7 @@ export default class PollService {
 
         await Promise.all(promises);
 
-        return { success: true, vote };
+        return { success: true, vote, changed: true };
     }
 
     public async dweet(pollCode : string, user : User) : Promise<'ok' | 'no-poll' | 'permissions'> {
