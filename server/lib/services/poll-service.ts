@@ -121,11 +121,11 @@ export default class PollService {
 
         // create poll
         let poll : KeyValuePair<any> = {};
-        let allFields = ['code', 'open', 'title', 'description', 'timed', 'private', 'timeoutUnix', 'whitelist', 'allowedVoters'];
+        let allFields = ['code', 'open', 'title', 'description', 'timed', 'private', 'timeoutUnix', 'allowedVoters'];
         for (let f of allFields) poll[f] = data[f];
 
         // whitelist is an array of usernames, should be saved as ids
-        data.whitelist = await Services.get<UserService>(Constants.UserService).usernamesToIds(data.whitelist);
+        poll.whitelist = await Services.get<UserService>(Constants.UserService).usernamesToIds(data.whitelist);
 
         poll.ownerId = owner;
         poll.creationUnix = creationUnix;
