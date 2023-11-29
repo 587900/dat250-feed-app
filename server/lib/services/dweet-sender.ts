@@ -32,6 +32,7 @@ export default class DweetSender {
     public async send(data : KeyValuePair<any>, title : string) : Promise<string> {
         let options = { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'application/json' } };
         await fetch(`https://dweet.io/dweet/for/${title}`, options).catch(err => this.logger.error(err));
+        this.logger.debug(`Dweeted title: '${title}' to: https://dweet.io/get/latest/dweet/for/${title}`);
         return `https://dweet.io/get/latest/dweet/for/${title}`;
     }
 
