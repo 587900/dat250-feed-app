@@ -38,4 +38,5 @@ To deploy the application, simply configure it as described in 'Running the proj
 - GOOGLE_CLIENT_SECRET - See above
 - DWEET_PREFIX - A prefix to append to the url-topics of any dweets. Can be any string, for example 'feed-app-'
 - PASSPORT_URL - The passport redirect url/domain for external authentication. Should point back to the same server and port this server is running on. Note that it might have to be registered with external authentication providers for validity (like google, during their oauth2.0 registration step)
+- CORS_ORIGIN - The url to allow CORS requests from. Should point to the server/domain providing the client code
 - MQTT_URL - (OPTIONAL) If set as an url, then the server will post MQTT events to that server (mqtt://...)
