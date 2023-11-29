@@ -25,11 +25,14 @@ let dweetPrefix = <string>process.env.dweet_prefix;
 if (process.env.passport_url == null) throw new Error(`IllegalArgumentException environment variable 'passport_url' must be set (was not set)`);
 let passportUrl = <string>process.env.passport_url;
 
+if (process.env.cors_origin == null) throw new Error(`IllegalArgumentException environment variable 'cors_origin' must be set (was not set)`);
+let corsOrigin = <string>process.env.cors_origin;
+
 let mqttUrl = process.env.mqtt_url || null;
 
 export default {
     // mandatory
-    isProduction, dbUrl, port, sessionSecret, auth: { googleClientID, googleClientSecret }, dweetPrefix, passportUrl,
+    isProduction, dbUrl, port, sessionSecret, auth: { googleClientID, googleClientSecret }, dweetPrefix, passportUrl, corsOrigin,
     // optional
     mqttUrl
 }
