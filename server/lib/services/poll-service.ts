@@ -94,9 +94,8 @@ export default class PollService {
     public async update(code : string, merge : Partial<Poll>) : Promise<boolean> {
         let existing = await this.find(code);
         if (existing == null) return false;
-        let p1 = this.db.updateOne({ code }, { $set: merge }, Constants.DBPolls);
-        let p2 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'update', code: merge.code || code, totalVotes: merge.cachedVotes || existing.cachedVotes, oldCode: code, changed: Object.keys(merge) });
-        await Promise.all([p1, p2]);
+        await this.db.updateOne({ code }, { $set: merge }, Constants.DBPolls);
+        Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'update', code: merge.code || code, totalVotes: merge.cachedVotes || existing.cachedVotes, oldCode: code, changed: Object.keys(merge) });
         return true;
     }
 

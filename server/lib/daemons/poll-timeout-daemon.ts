@@ -65,6 +65,8 @@ export default class PollTimeoutDaemon {
             this.logger.info(`Poll with code '${poll.code}' timed out`);
             promises.push(Services.get<PollService>(Constants.PollService).closeTimeout(poll.code).then(r => {
                 if (r != 'ok') this.logger.warn(`Poll with code '${poll.code}' attempted close but failed with: ${r}`);
+                this.trackingPolls.delete(poll.code);
+                this.trackPoll(poll.code);
             }));
         }
         await Promise.all(promises);
