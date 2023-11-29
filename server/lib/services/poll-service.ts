@@ -279,7 +279,7 @@ export default class PollService {
         if (!this.canUserControl(poll, user)) return 'permissions';
 
         let dweeter = Services.get<DweetSender>(Constants.DweetSender);
-        await dweeter.send({ title: poll.title, description: poll.description, code: poll.code, votes: poll.cachedVotes }, Config.dweetPrefix + poll.code);
+        await dweeter.send({ title: poll.title, description: poll.description, code: poll.code, votes: poll.cachedVotes, open: poll.open }, Config.dweetPrefix + poll.code);
 
         return 'ok';
     }

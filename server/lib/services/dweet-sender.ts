@@ -24,7 +24,7 @@ export default class DweetSender {
             let poll = await Services.get<PollService>(Constants.PollService).find(event.code);
             if (poll == null) return;
 
-            this.send({ title: poll.title, description: poll.description, code: poll.code, votes: poll.cachedVotes }, Config.dweetPrefix + poll.code);
+            this.send({ title: poll.title, description: poll.description, code: poll.code, votes: poll.cachedVotes, open: poll.open }, Config.dweetPrefix + poll.code);
         });
     }
 
