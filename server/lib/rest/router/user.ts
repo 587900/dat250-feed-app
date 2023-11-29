@@ -22,7 +22,7 @@ export default class UserRouter {
 
         router.get('/get-usernames', async (req, res) => {
             let prefix = req.bodyQuery['regex'] || '.*';
-            let u = await users.getUsernames(prefix);
+            let u = await users.getUsernames(prefix, false);
             logger.info(`User did fetch of usernames with prefix '${prefix}' and got '${u.length}' results.`);
             res.send(u);
         });

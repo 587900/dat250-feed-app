@@ -1,5 +1,7 @@
 'use strict';
 
+import { KeyValuePair } from './../../../common/types';
+
 import Constants from './../constants';
 import Services from './../services';
 import Database from './database';
@@ -8,9 +10,11 @@ export default class UserService {
     
     constructor() {}
 
-    public async getUsernames(regex : string) : Promise<string[]> {
+    public async getUsernames(regex : string, includeGuests : boolean = true) : Promise<string[]> {
         let db = Services.get<Database>(Constants.Storage);
-        let result = await db.aggregate([{ $match: { username: regex } }, { $project: { username: 1 } }], Constants.DBUsers);
+        let match : KeyValuePair<any> = { username: regex };
+        if (!includeGuests) match.guest = false;
+        let result = await db.aggregate([{ $match: match }, { $project: { username: 1 } }], Constants.DBUsers);
         if (result == null) return [];
         return result.map(r => r.username);
     }
