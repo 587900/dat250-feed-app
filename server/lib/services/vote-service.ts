@@ -24,6 +24,10 @@ export default class VoteService {
         return true;
     }
 
+    public async deleteForPoll(pollCode : string) : Promise<void> {
+        await Services.get<Database>(Constants.Storage).delete({ pollCode }, Constants.DBVotes);
+    }
+
     /*
     // Insert a single Vote document
     public async insert(data: Vote) {

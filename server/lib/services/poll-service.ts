@@ -104,8 +104,9 @@ export default class PollService {
         if (poll == null) return false;
         if (!this.canUserControl(poll, user)) return false;
         let p1 = this.db.deleteOne({ code }, Constants.DBPolls);
-        let p2 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'delete', code, totalVotes: poll.cachedVotes });
-        await Promise.all([p1, p2]);
+        let p2 = Services.get<VoteService>(Constants.VoteService).deleteForPoll(code);
+        let p3 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'delete', code, totalVotes: poll.cachedVotes });
+        await Promise.all([p1, p2, p3]);
         return true;
     }
 
