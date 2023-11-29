@@ -26,6 +26,7 @@ export default class AuthRouter {
             next();
         });
 
+        router.use('/local', this.local());
         router.use('/google', this.basic('google'));
         router.use('/iot-device', this.crbasic('iot-device'));
 
@@ -72,16 +73,20 @@ export default class AuthRouter {
         });
     }
 
+    private static local() : Router {
+        let router = Router();
+
+        router.get('/', (req, res, next) => passport.authenticate('local', this.crhandler.bind(this, req, res, next))(req, res, next));
+        router.post('/register', (req, res, next) => passport.authenticate('local-register', this.crhandler.bind(this, req, res, next))(req, res, next));
+
+        return router;
+    }
+
     private static basic(name: string) : Router {
         let router = Router();
 
         router.get('/', passport.authenticate(name, { scope: ['profile'] }));
-
-        router.get('/callback', (req, res, next) => {
-            let successRedirect = req.cookies[Constants.SessionRedirectOnAuthSuccess] || '/';
-            let failureRedirect = req.cookies[Constants.SessionRedirectOnAuthFailure] || '/login';
-            passport.authenticate(name, { successRedirect, failureRedirect })(req, res, next);
-        });
+        router.get('/callback', (req, res, next) => passport.authenticate(name, this.crhandler.bind(this, req, res, next))(req, res, next));
 
         return router;
     }
@@ -90,27 +95,27 @@ export default class AuthRouter {
     private static crbasic(name : string) : Router {
         let router = Router();
 
-        router.get('/', (req, res, next) => {
-            let successRedirect = req.cookies[Constants.SessionRedirectOnAuthSuccess] || '/';
-            let failureRedirect = req.cookies[Constants.SessionRedirectOnAuthFailure] || '/login';
-            passport.authenticate(name, (err, user, info) => {
-                if (err) {
-                    let { code, reason } = err;
-                    if (code == null || reason == null) return next(err);
-                    return res.status(code).send(reason);
-                }
-
-                if (!user) return res.redirect(failureRedirect);
-
-                req.logIn(user, err => {
-                    if (err) { return next(err); }
-                    return res.redirect(successRedirect);
-                });
-
-            })(req, res, next);
-        });
+        router.get('/', (req, res, next) => passport.authenticate(name, this.crhandler.bind(this, req, res, next))(req, res, next));
 
         return router;
+    }
+
+    private static crhandler(req, res, next, err, user, info) {
+        if (err) {
+            let { code, reason } = err;
+            if (code == null || reason == null) return next(err);
+            return res.status(code).send(reason);
+        }
+
+        let successRedirect = req.cookies[Constants.SessionRedirectOnAuthSuccess] || '/';
+        let failureRedirect = req.cookies[Constants.SessionRedirectOnAuthFailure] || '/login';
+
+        if (!user) return res.redirect(failureRedirect);
+
+        req.logIn(user, err => {
+            if (err) { return next(err); }
+            return res.redirect(successRedirect);
+        });
     }
 
 }

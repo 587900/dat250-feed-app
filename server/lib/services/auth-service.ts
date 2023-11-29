@@ -1,5 +1,7 @@
 'use strict';
 
+import crypto from 'crypto';
+
 import User, { Claim, LastLoggedInWith as LoginMethod } from './../../../common/model/user';
 
 import Logger from './../logger';
@@ -8,6 +10,11 @@ import Services from './../services';
 import Constants from './../constants';
 
 export default class AuthService {
+
+    private static LOCAL_ALGORITHM = 'sha512';
+    private static LOCAL_ITERATIONS = 100000;
+    private static LOCAL_KEYLEN = 64;
+    private static LOCAL_SALTLEN = 64;
 
     private logger: Logger;
 
@@ -31,6 +38,58 @@ export default class AuthService {
         if (await this.getUserById(id) == null) return false;
         await Services.get<Database>(Constants.Storage).deleteOne({ id }, Constants.DBUsers);
         return true;
+    }
+
+    private async fetchLocalUserMetadata(id : string) : Promise<{ salt : string, passwordHash : String } | null> {
+        let authlink = await this.getAuthLink('local-auth', id);
+        if (authlink == null) return null;
+
+        if (typeof authlink.metadata !== 'object' || authlink.metadata == null) {
+            this.logger.error(`User with local-auth link id '${id}' had no metadata`);
+            return null;
+        }
+
+        let { salt, passwordHash } = authlink.metadata;
+
+        if (typeof salt !== 'string' || salt == null) {
+            this.logger.error(`User with local-auth link id '${id}' had no salt`);
+            return null;
+        }
+
+        if (typeof passwordHash !== 'string' || passwordHash == null) {
+            this.logger.error(`User with local-auth link id '${id}' had no passwordHash`);
+            return null;
+        }
+
+        return { salt, passwordHash };
+    }
+
+    public async verifyLocalUserPassword(id : string, password : string) : Promise<boolean> {
+        return new Promise<boolean>(async (resolve, _) => {
+            let metadata = await this.fetchLocalUserMetadata(id);
+            if (metadata == null) return resolve(false);
+
+            let phash = metadata.passwordHash;
+            crypto.pbkdf2(password, metadata.salt, AuthService.LOCAL_ITERATIONS, AuthService.LOCAL_KEYLEN, AuthService.LOCAL_ALGORITHM, (err, derivedKey) => {
+                if (err) { this.logger.warn(`User with id '${id}' failed to verify password with error: ${err}`); return resolve(false); }
+                if (!crypto.timingSafeEqual(Buffer.from(phash, 'hex'), derivedKey)) return resolve(false);
+                return resolve(true);
+            });
+        });
+    }
+
+    private async createLocalUserMetadata(password : string) : Promise<{ salt : string, passwordHash : string } | null> {
+        return new Promise<{ salt : string, passwordHash : string } | null>((resolve, _) => {
+            crypto.randomBytes(AuthService.LOCAL_SALTLEN, (err, salt) => {
+                if (err) { this.logger.warn(`Failed to create local user metadata with error: ${err}`); return resolve(null); }
+
+                crypto.pbkdf2(password, salt.toString('hex'), AuthService.LOCAL_ITERATIONS, AuthService.LOCAL_KEYLEN, AuthService.LOCAL_ALGORITHM, (err, derivedKey) => {
+                    if (err) { this.logger.warn(`Failed to create local user metadata with error: ${err}`); return resolve(null); }
+
+                    return resolve({ salt: salt.toString('hex'), passwordHash: derivedKey.toString('hex') });
+                });
+            });
+        });
     }
 
     private generateId() : string {
@@ -65,7 +124,13 @@ export default class AuthService {
     }
 
     public async getUserByLocalGuestId(localGuestId : string) : Promise<User | null> {
-        let userId = (await this.getAuthLink('local-guest', localGuestId))?.userId;
+        let userId = (await this.getAuthLink('local-guest-auth', localGuestId))?.userId;
+        if (userId == null) return null;
+        return await this.getUserById(userId);
+    }
+
+    public async getUserByLocalId(localId : string) : Promise<User | null> {
+        let userId = (await this.getAuthLink('local-auth', localId))?.userId;
         if (userId == null) return null;
         return await this.getUserById(userId);
     }
@@ -83,8 +148,16 @@ export default class AuthService {
     }
 
     public async linkLocalGuestAccount(userId : string, localGuestId : string) : Promise<boolean> {
-        if (await this.getAuthLink('local-guest', localGuestId) != null) return false;
-        await this.createAuthLink(userId, 'local-guest', localGuestId);
+        if (await this.getAuthLink('local-guest-auth', localGuestId) != null) return false;
+        await this.createAuthLink(userId, 'local-guest-auth', localGuestId);
+        return true;
+    }
+
+    public async linkLocalAccount(userId : string, localId : string, password : string) : Promise<boolean> {
+        if (await this.getAuthLink('local-auth', localId) != null) return false;
+        let metadata = await this.createLocalUserMetadata(password);
+        if (metadata == null) return false;
+        await this.createAuthLink(userId, 'local-auth', localId, metadata);
         return true;
     }
 
@@ -94,9 +167,10 @@ export default class AuthService {
         return true;
     }
 
-    private async createAuthLink(userId : string, type : string, id : string) : Promise<void> {
+    private async createAuthLink(userId : string, type : string, id : string, metadata? : any) : Promise<void> {
         let db = Services.get<Database>(Constants.Storage);
         let link : AuthLink = { userId, type, id, creationUnix: Date.now(), lastFetchedUnix: Date.now() };
+        if (metadata != null) link.metadata = metadata;
         await db.insertOne(link, Constants.DBAUthLinks);
     }
 
@@ -115,4 +189,4 @@ export default class AuthService {
 
 }
 
-export type AuthLink = { userId : string, type : string, id : string, creationUnix : number, lastFetchedUnix : number }
+export type AuthLink = { userId : string, type : string, id : string, creationUnix : number, lastFetchedUnix : number, metadata? : any }

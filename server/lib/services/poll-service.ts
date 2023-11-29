@@ -21,7 +21,7 @@ export default class PollService {
     private static addOwnerUsername = [
         { $lookup: { from: 'users', localField: 'ownerId', foreignField: 'id', as: 'owner' } },
         { $unwind: '$owner' },
-        { $addFields: { username: '$owner.firstName' } }
+        { $addFields: { username: '$owner.username' } }
     ];
 
     private db: Database;
