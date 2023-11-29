@@ -99,20 +99,25 @@ export default class PollRouter {
             return res.send('ok');
         });
 
-        router.put('/:code', (req, res) => {
+        router.put('/:code', async (req, res) => {
             let user = req.user;
             if (!user) return res.status(401).send('You must be logged in');
 
+            let result = await polls.safeParsePartial(req.bodyQuery, user.claims.includes('admin'));
+            if (!result.success) return res.status(400).send(result.error);
+
+            let poll = result.data;
+
             let code = req.params['code'];
-            //let data = await polls.safeParse(req.bodyQuery, user.id);
+            let success = await polls.update(code, poll);
+            if (!success) {
+                logger.info(`User with id '${user.id}' attempted to create a update poll with code '${code}', but failed`);
+                return res.sendStatus(500);
+            }
 
-            // TODO: check admin or owner
-            logger.warn(`poll update is not implemented`);
+            logger.info(`User with id '${user.id}' updated poll with code '${code}'${poll.code != code ? ` (new code: '${poll.code}')` : ''}`);
 
-            // polls.update(id, data);
-            logger.info(`User with id '${user.id}' updated poll with code '${code}'`);
-
-            return res.send('ok');
+            return res.send(poll);
         });
 
         router.post('/:code/vote', async (req, res) => {

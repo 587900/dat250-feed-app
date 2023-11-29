@@ -80,11 +80,7 @@ export default class PollService {
         return true;
     }
 
-    /**
-     * Consumes data and converts it into a poll. Returns a list of missing fields if data was missing fields. Returns an error if some data was formatted wrongly.
-     * @param data The data to parse
-     * @param admin If to allow admin-only fields
-     */
+    /** Consumes data and converts it into a poll. Returns a list of missing fields if data was missing fields. Returns an error if some data was formatted wrongly. */
     public async safeParse(data : KeyValuePair<any>, owner : string, creationUnix : number = Date.now()) : Promise<{ success: true, data: Poll } | { success: false, missing: string[], error?: string }> {
 
         // do fields
@@ -125,13 +121,61 @@ export default class PollService {
         for (let f of allFields) poll[f] = data[f];
 
         // whitelist is an array of usernames, should be saved as ids
-        poll.whitelist = await Services.get<UserService>(Constants.UserService).usernamesToIds(data.whitelist);
+        if (data.private) poll.whitelist = await Services.get<UserService>(Constants.UserService).usernamesToIds(data.whitelist);
 
         poll.ownerId = owner;
         poll.creationUnix = creationUnix;
         poll.cachedVotes = { red: 0, green: 0 };
 
         return { success: true, data: poll as Poll };
+    }
+
+    /** Consumes data and converts it into a partial poll. Returns an error if some data was formatted wrongly. Will apply some fields only if admin is true */
+    public async safeParsePartial(data : KeyValuePair<any>, admin : boolean) : Promise<{ success: true, data: Partial<Poll> } | { success: false, error: string }> {
+
+        // check typings
+        if (data.open != null && typeof data.open != 'boolean') return { success: false, error: 'open must be a boolean' };
+        if (data.title != null && typeof data.title != 'string') return { success: false, error: 'title must be a string' };
+        if (data.description != null && typeof data.description != 'string') return { success: false, error: 'description must be a string' };
+        if (data.timed != null && typeof data.timed != 'boolean') return { success: false, error: 'timed must be a boolean' };
+        if (data.private != null && typeof data.private != 'boolean') return { success: false, error: 'private must be a boolean' };
+
+        // if certain fields are provided, others MUST be present
+        if (data.timed && typeof data.timeoutUnix != 'number') return { success: false, error: 'timeoutUnix must be a number' };
+        if (data.private && !Array.isArray(data.whitelist)) return { success: false, error: 'whitelist must be an array' };
+        if (!data.private) {
+            if (!Array.isArray(data.allowedVoters)) return { success: false, error: 'allowedVoters must be an array' };
+            if (data.allowedVoters.some(type => !['web-user', 'iot-device'].includes(type))) return { success: false, error: 'allowedVoters must be an array of strings' };
+        }
+
+        // admin-only fields
+        if (data.code != null && typeof data.code != 'string') return { success: false, error: 'code must be a string' };
+        if (data.creationUnix != null && typeof data.creationUnix != 'number') return { success: false, error: 'creationUnix must be a number' };
+        if (data.cachedVotes != null && typeof data.cachedVotes != 'object') return { success: false, error: 'cachedVotes must be an object' };
+        if (data.ownerId != null && typeof data.ownerId != 'string') return { success: false, error: 'ownerId must be a string' };
+
+        // sanity verify
+        //if (data.private && data.whitelist.length > 1024) return { error: 'whitelist must be at most 1024 users' };
+
+        // clean data
+        if (data.timed) data.timeoutUnix = Math.floor(data.timeoutUnix);
+        if (data.whitelist) data.whitelist = [... new Set(data.whitelist)];
+        if (data.allowedVoters) data.allowedVoters = [... new Set(data.allowedVoters)];
+
+        // create poll
+        let poll : KeyValuePair<any> = {};
+        let allFields = ['open', 'title', 'description', 'timed', 'private', 'timeoutUnix', 'allowedVoters'];
+        for (let f of allFields) poll[f] = data[f];
+
+        // whitelist is an array of usernames, should be saved as ids
+        if (data.private) poll.whitelist = await Services.get<UserService>(Constants.UserService).usernamesToIds(data.whitelist);
+
+        if (admin) {
+            let adminFields = ['code', 'creationUnix', 'cachedVotes', 'ownerId'];
+            for (let f of adminFields) poll[f] = data[f];
+        }
+
+        return { success: true, data: poll as Partial<Poll> };
     }
 
     /** @returns whether or not a user can view a poll */
