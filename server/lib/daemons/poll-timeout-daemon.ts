@@ -20,22 +20,23 @@ export default class PollTimeoutDaemon {
         Services.get<EventMaster>(Constants.EventMaster).addListener(async (event : EMEvent) => {
             if (event.type != 'poll') return;
             if (event.detail == 'delete') return this.trackingPolls.delete(event.code);
-            if (event.detail == 'create') {
-                let poll = await Services.get<PollService>(Constants.PollService).find(event.code);
-                if (poll == null) return this.logger.error(`Failed fo fetch poll with code '${event.code}'`);
-                return this.trackingPolls.set(event.code, poll);
-            }
+            if (event.detail == 'create') return this.trackPoll(event.code);
             if (event.detail == 'update') {
                 this.trackingPolls.delete(event.oldCode);
-                let poll = await Services.get<PollService>(Constants.PollService).find(event.code);
-                if (poll == null) return this.logger.error(`Failed fo fetch poll with code '${event.code}'`);
-                return this.trackingPolls.set(event.code, poll);
+                return this.trackPoll(event.code);
             }
+            // Note: open and close and encapsulated by 'update'
         });
 
         Services.get<PollService>(Constants.PollService).all().then(polls => {
             for (let poll of polls) this.trackingPolls.set(poll.code, poll);
         });
+    }
+
+    private async trackPoll(code : string) {
+        let poll = await Services.get<PollService>(Constants.PollService).find(code);
+        if (poll == null) return this.logger.error(`Failed fo fetch poll with code '${code}'`);
+        return this.trackingPolls.set(code, poll);
     }
 
     public async start() : Promise<void> {
@@ -53,17 +54,20 @@ export default class PollTimeoutDaemon {
 
     public running() : boolean { return this.interval != null; }
 
-    private async check() : Promise<void> {
+    private async check() : Promise<any> {
         let now = Date.now();
+        let promises : Promise<void>[] = [];
         for (let poll of this.trackingPolls.values()) {
             if (!poll.open) continue;
             if (!poll.timed) continue;
             if (poll.timeoutUnix == null) continue;
             if (poll.timeoutUnix > now) continue;
             this.logger.info(`Poll with code '${poll.code}' timed out`);
-            await Services.get<PollService>(Constants.PollService).closeTimeout(poll.code);
+            promises.push(Services.get<PollService>(Constants.PollService).closeTimeout(poll.code).then(r => {
+                if (r != 'ok') this.logger.warn(`Poll with code '${poll.code}' attempted close but failed with: ${r}`);
+            }));
         }
-
+        await Promise.all(promises);
     }
 
 }
