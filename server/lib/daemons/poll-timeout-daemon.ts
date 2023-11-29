@@ -11,7 +11,7 @@ import PollService from './../services/poll-service';
 /** A daemon for automatically closing timed polls */
 export default class PollTimeoutDaemon {
 
-    private logger = Logger.getLogger('/lib/services/poll-timeout-daemon.ts');
+    private logger = Logger.getLogger('/lib/daemons/poll-timeout-daemon.ts');
     private interval : NodeJS.Timeout | null = null;
 
     private trackingPolls : Map<string, Poll> = new Map<string, Poll>();

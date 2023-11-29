@@ -54,6 +54,7 @@ export default class PollService {
         let p1 = this.db.insertOne(poll, Constants.DBPolls);
         let p2 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'create', code: poll.code, totalVotes: poll.cachedVotes });
         await Promise.all([p1, p2]);
+        if (poll.open) await Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'open', code: poll.code, totalVotes: poll.cachedVotes })
         return true;
     }
 

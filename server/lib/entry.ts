@@ -25,6 +25,7 @@ const logger = Logger.getLogger('/lib/entry.ts');
 let server = http.createServer();
 
 logger.info('Starting services...');
+Services.add(Constants.EventMaster, new EventMaster());
 logger.info(`MQTT url was${Config.mqttUrl == null ? ' not ' : ' '}specified: MQTT will be ${Config.mqttUrl == null ? 'disabled' : 'enabled'}`);
 if (Config.mqttUrl != null) Services.add(Constants.MQTTSender, new MQTTSender(Config.mqttUrl));
 Services.add(Constants.Storage, new Database(Config.dbUrl));
@@ -34,7 +35,6 @@ Services.add(Constants.VoteService, new VoteService());
 Services.add(Constants.AuthService, new AuthService());
 Services.add(Constants.PassportSetup, new PassportSetup());
 Services.add(Constants.DweetSender, new DweetSender());
-Services.add(Constants.EventMaster, new EventMaster());
 Services.add(Constants.RESTMain, new REST());
 logger.info(`Started ${Services.count()} services`);
 
