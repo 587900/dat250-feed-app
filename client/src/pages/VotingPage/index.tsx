@@ -11,6 +11,7 @@ const VotingPage: FC = () => {
   const [userVote, setUserVote] = useState(null); 
   const [countdown, setCountdown] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [manuallyToggled, setManuallyToggled] = useState(false);
   const params = useParams<{ code?: string }>();
   const code = params.code;
 
