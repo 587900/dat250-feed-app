@@ -54,6 +54,7 @@ export default class PollService {
         let p1 = this.db.insertOne(poll, Constants.DBPolls);
         let p2 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'create', code: poll.code, totalVotes: poll.cachedVotes });
         await Promise.all([p1, p2]);
+        if (poll.open) await Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'open', code: poll.code, totalVotes: poll.cachedVotes })
         return true;
     }
 
@@ -278,7 +279,7 @@ export default class PollService {
         if (!this.canUserControl(poll, user)) return 'permissions';
 
         let dweeter = Services.get<DweetSender>(Constants.DweetSender);
-        await dweeter.send({ title: poll.title, description: poll.description, code: poll.code, votes: poll.cachedVotes }, Config.dweetPrefix + poll.code);
+        await dweeter.send({ title: poll.title, description: poll.description, code: poll.code, votes: poll.cachedVotes, open: poll.open }, Config.dweetPrefix + poll.code);
 
         return 'ok';
     }
