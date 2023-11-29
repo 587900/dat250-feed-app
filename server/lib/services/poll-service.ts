@@ -36,6 +36,11 @@ export default class PollService {
         return await this.db.aggregate(options, Constants.DBPolls) as APIPoll[];
     }
 
+    /** @returns a list of all Polls for use internally */
+    public async all() : Promise<Poll[]> {
+        return await this.db.find({}, Constants.DBPolls) as Poll[];
+    }
+
     public async find(code : string) : Promise<Poll | null> {
         let options = [{ $match: { code } }, ...PollService.addOwnerUsername];
         let polls = await this.db.aggregate(options, Constants.DBPolls) as Poll[] | null;
@@ -60,6 +65,18 @@ export default class PollService {
         if (!this.canUserControl(poll, user)) return 'permissions';
         let p1 = this.update(code, { open: status });
         let p2 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: (status ? 'open' : 'close'), code, totalVotes: poll.cachedVotes });
+        await Promise.all([p1, p2]);
+        return 'ok';
+    }
+
+    public async closeTimeout(code : string) : Promise<'ok' | 'no-poll' | 'not-timed' | 'not-timed-out' | 'already-closed'> {
+        let poll = await this.find(code);
+        if (poll == null) return 'no-poll';
+        if (!poll.timed) return 'not-timed';
+        if (!poll.open) return 'already-closed';
+        if (poll.timeoutUnix > Date.now()) return 'not-timed-out';
+        let p1 = this.update(code, { open: false });
+        let p2 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'close', code, totalVotes: poll.cachedVotes });
         await Promise.all([p1, p2]);
         return 'ok';
     }

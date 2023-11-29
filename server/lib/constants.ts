@@ -13,6 +13,9 @@ enum Constants {
     EventMaster = 'event-master',
     PassportSetup = 'passport-setup',
 
+    // daemons
+    PollTimeoutDaemon = 'poll-timeout-daemon',
+
     // session
     SessionRedirectOnAuthSuccess = 'auth_redirect_success',
     SessionRedirectOnAuthFailure = 'auth_redirect_failure',
