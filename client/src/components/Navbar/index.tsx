@@ -57,7 +57,13 @@ const Navbar: React.FC = () => {
       onClose={handleMobileMenuClose}
     >
       <MenuItem onClick={handleMobileMenuClose}>
-        <Typography color="primary">My polls</Typography>
+        <Link
+          to="/my-polls"
+          className="me-auto"
+          style={{ backgroundColor: "inherit", textDecoration: "none" }}
+        >
+          <Typography color="primary">My polls</Typography>
+        </Link>
       </MenuItem>
       <MenuItem onClick={handleMobileMenuClose}>
         <Link
@@ -70,7 +76,7 @@ const Navbar: React.FC = () => {
       </MenuItem>
 
       <MenuItem onClick={handleMobileMenuClose}>
-        {user ? (
+        {user?.guest === false && user ? (
           <Typography color="primary" onClick={logout}>
             Logout
           </Typography>
@@ -177,7 +183,7 @@ const Navbar: React.FC = () => {
                     Create Poll
                   </Typography>
                 </Link>
-                {user ? (
+                {user && user?.guest === false ? (
                   <Button
                     onClick={logout}
                     style={{
