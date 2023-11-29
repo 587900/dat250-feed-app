@@ -22,11 +22,14 @@ let googleClientSecret = <string>process.env.google_client_secret;
 if (process.env.dweet_prefix == null) throw new Error(`IllegalArgumentException environment variable 'dweet_prefix' must be set (was not set)`);
 let dweetPrefix = <string>process.env.dweet_prefix;
 
+if (process.env.passport_url == null) throw new Error(`IllegalArgumentException environment variable 'passport_url' must be set (was not set)`);
+let passportUrl = <string>process.env.passport_url;
+
 let mqttUrl = process.env.mqtt_url || null;
 
 export default {
     // mandatory
-    isProduction, dbUrl, port, sessionSecret, auth: { googleClientID, googleClientSecret }, dweetPrefix,
+    isProduction, dbUrl, port, sessionSecret, auth: { googleClientID, googleClientSecret }, dweetPrefix, passportUrl,
     // optional
     mqttUrl
 }

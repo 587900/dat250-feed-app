@@ -35,18 +35,9 @@ Services.add(Constants.RESTMain, new REST());
 logger.info(`Started ${Services.count()} services`);
 
 logger.debug('Setting up passport...');
-Services.get<PassportSetup>(Constants.PassportSetup).setup('http://localhost:8080');
+Services.get<PassportSetup>(Constants.PassportSetup).setup(Config.passportUrl);
 logger.debug('Passport setup complete');
 
 server.on('request', Services.get<REST>(Constants.RESTMain).listener());
 
 server.listen(Config.port, () => logger.info(`Server started and is listening on port: ${Config.port}`));
-
-/* 
-let ps = Services.get<PollService>(Constants.PollService);
-
-
-let poll : Poll = { code: '123', ownerId: 'user123', creationUnix: 0, open: true, title: 'test', description: 'yrdy',
-cachedVotes: { }, timed: false, private: true, whitelist: []  };
-ps.create(poll);
-*/

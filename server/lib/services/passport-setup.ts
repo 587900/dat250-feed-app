@@ -19,7 +19,7 @@ export default class PassportSetup {
 
     constructor() {}
 
-    public setup(baseUrl : string = 'http://localhost:8080') {
+    public setup(baseUrl : string) {
         while (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
 
         let auth = Services.get<AuthService>(Constants.AuthService);
