@@ -24,6 +24,9 @@ export default class DweetSender {
             let poll = await Services.get<PollService>(Constants.PollService).find(event.code);
             if (poll == null) return;
 
+            if ((poll.open ? 'open' : 'close') != event.detail)
+                this.logger.error(`poll event for code '${event.code}' said detail was: '${event.detail}', but poll was: (open=${poll.open})`);
+
             this.send({ title: poll.title, description: poll.description, code: poll.code, votes: poll.cachedVotes, open: poll.open }, Config.dweetPrefix + poll.code);
         });
     }

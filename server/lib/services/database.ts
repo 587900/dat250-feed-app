@@ -25,6 +25,10 @@ export default class Database {
         return await this.db.collection(collection).aggregate(aggregation).toArray();
     }
 
+    public async delete(query : KeyValuePair<any>, collection : string) : Promise<any> {
+        return await this.db.collection(collection).deleteMany(query);
+    }
+
     // Update the first document that matches the filter with the new data in updateDocument
     public async updateOne(match : KeyValuePair<any>, statement : KeyValuePair<any>, collection : string) : Promise<void> {
         await this.db.collection(collection).updateOne(match, statement);

@@ -51,10 +51,13 @@ export default class PollService {
     /** @returns true if successful, false is already exists by code */
     public async create(poll : Poll) : Promise<boolean> {
         if (await this.find(poll.code) != null) return false;
-        let p1 = this.db.insertOne(poll, Constants.DBPolls);
-        let p2 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'create', code: poll.code, totalVotes: poll.cachedVotes });
-        await Promise.all([p1, p2]);
-        if (poll.open) await Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'open', code: poll.code, totalVotes: poll.cachedVotes })
+        await this.db.insertOne(poll, Constants.DBPolls);
+
+        let em = Services.get<EventMaster>(Constants.EventMaster);
+        em.submit({ type: 'poll', detail: 'create', code: poll.code, totalVotes: poll.cachedVotes }).then(() => {
+            if (poll.open) em.submit({ type: 'poll', detail: 'open', code: poll.code, totalVotes: poll.cachedVotes });
+        });
+
         return true;
     }
 
@@ -64,9 +67,8 @@ export default class PollService {
         let poll = await this.find(code);
         if (poll == null) return 'no-poll';
         if (!this.canUserControl(poll, user)) return 'permissions';
-        let p1 = this.update(code, { open: status });
-        let p2 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: (status ? 'open' : 'close'), code, totalVotes: poll.cachedVotes });
-        await Promise.all([p1, p2]);
+        await this.update(code, { open: status });
+        Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: (status ? 'open' : 'close'), code, totalVotes: poll.cachedVotes });
         return 'ok';
     }
 
@@ -76,9 +78,8 @@ export default class PollService {
         if (!poll.timed) return 'not-timed';
         if (!poll.open) return 'already-closed';
         if (poll.timeoutUnix > Date.now()) return 'not-timed-out';
-        let p1 = this.update(code, { open: false });
-        let p2 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'close', code, totalVotes: poll.cachedVotes });
-        await Promise.all([p1, p2]);
+        await this.update(code, { open: false });
+        Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'close', code, totalVotes: poll.cachedVotes });
         return 'ok';
     }
 
@@ -93,9 +94,8 @@ export default class PollService {
     public async update(code : string, merge : Partial<Poll>) : Promise<boolean> {
         let existing = await this.find(code);
         if (existing == null) return false;
-        let p1 = this.db.updateOne({ code }, { $set: merge }, Constants.DBPolls);
-        let p2 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'update', code: merge.code || code, totalVotes: merge.cachedVotes || existing.cachedVotes, oldCode: code, changed: Object.keys(merge) });
-        await Promise.all([p1, p2]);
+        await this.db.updateOne({ code }, { $set: merge }, Constants.DBPolls);
+        Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'update', code: merge.code || code, totalVotes: merge.cachedVotes || existing.cachedVotes, oldCode: code, changed: Object.keys(merge) });
         return true;
     }
 
@@ -104,8 +104,9 @@ export default class PollService {
         if (poll == null) return false;
         if (!this.canUserControl(poll, user)) return false;
         let p1 = this.db.deleteOne({ code }, Constants.DBPolls);
-        let p2 = Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'delete', code, totalVotes: poll.cachedVotes });
+        let p2 = Services.get<VoteService>(Constants.VoteService).deleteForPoll(code);
         await Promise.all([p1, p2]);
+        Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'delete', code, totalVotes: poll.cachedVotes });
         return true;
     }
 
@@ -266,9 +267,9 @@ export default class PollService {
             vote.selection = selection;
         }
 
-        promises.push(Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'vote', code: poll.code, selection, totalVotes }));
-
         await Promise.all(promises);
+
+        Services.get<EventMaster>(Constants.EventMaster).submit({ type: 'poll', detail: 'vote', code: poll.code, selection, totalVotes });
 
         return { success: true, vote, changed: true };
     }

@@ -12,7 +12,7 @@ import Constants from './../constants';
 export default class AuthService {
 
     private static LOCAL_ALGORITHM = 'sha512';
-    private static LOCAL_ITERATIONS = 100000;
+    private static LOCAL_ITERATIONS = 210000;
     private static LOCAL_KEYLEN = 64;
     private static LOCAL_SALTLEN = 64;
 
