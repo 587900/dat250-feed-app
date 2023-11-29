@@ -2,46 +2,67 @@ import axios from "axios";
 import { LoginUserData } from "../types/clientTypes";
 
 
+const API_BASE_URL = "http://localhost:8080/auth";
 
-const api = axios.create({
-  baseURL: "http://localhost:8080/auth",
-});
-
-export const login = async (
-  email: string,
-  password: string
-): Promise<{ user: LoginUserData; token: string }> => {
-  const response = await api.post<{ user: LoginUserData; token: string }>(
-    "/local",
-    { email, password }
-  );
-  return response.data;
-};
-
-export const register = async (userData: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}): Promise<{ user: LoginUserData; token: string }> => {
-  const response = await api.post<{ user: LoginUserData; token: string }>(
-    "/local/register",
-    userData
-  );
-  return response.data;
-};
-
-export const checkAuthState = async (contextLogin: any) => {
+export const login = async (email: string, password: string) => {
   try {
-      //const response = await axios.get('http://localhost:8080/auth/check'); // API endpoint to validate token
-      const response = await fetch('http://localhost:8080/auth/check', { credentials: 'include' }).then(r => r.json());
-      console.log("auth response", response);
-      if (response?.authenticated) {
-          contextLogin(response.user);
-      }
-      
+    const response = await fetch(`${API_BASE_URL}/local`, {
+      method: "GET", // Changed from POST to GET as per your new route
+      credentials: "include", // Include credentials for cookies
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }), // Include email and password in the body
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
   } catch (error) {
-      console.error('Authentication failed', error);
+    console.error('Login failed', error);
+    throw error; // Rethrow the error for the caller to handle
   }
 };
 
+export const register = async (userData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/local/register`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Registration failed', error);
+    throw error;
+  }
+};
+
+export const checkAuthState = async (contextLogin) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/check`, {
+      credentials: 'include', // Ensure to include credentials for cookies
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.authenticated) {
+      contextLogin(data.user);
+    }
+  } catch (error) {
+    console.error('Authentication check failed', error);
+  }
+};

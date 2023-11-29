@@ -60,7 +60,13 @@ const Navbar: React.FC = () => {
         <Typography color="primary">My polls</Typography>
       </MenuItem>
       <MenuItem onClick={handleMobileMenuClose}>
-        <Typography color="primary">Create Poll</Typography>
+        <Link
+          to="/create-poll"
+          className="me-auto"
+          style={{ backgroundColor: "inherit", textDecoration: "none" }}
+        >
+          <Typography color="primary">Create Poll</Typography>
+        </Link>
       </MenuItem>
 
       <MenuItem onClick={handleMobileMenuClose}>

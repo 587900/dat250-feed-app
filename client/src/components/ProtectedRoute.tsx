@@ -9,8 +9,9 @@ type ProtectedRouteProps = {
 
 export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
   const { user } = useAuth();
-
-  if (!user) {
+  console.log('logging the user in protected routes:', user);
+  
+  if (!user || (user.guest === true)) {
     // Redirect to the login page if the user is not authenticated
     return <Navigate to="/login" replace />;
   }
