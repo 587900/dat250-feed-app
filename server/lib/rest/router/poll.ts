@@ -58,6 +58,7 @@ export default class PollRouter {
         router.post('/', async (req, res) => {
             let user = req.user;
             if (!user) return res.status(401).send('You must be logged in');
+            if (user.guest) return res.status(403).send('Guests cannot create polls');
 
             let result = await polls.safeParse(req.bodyQuery, user.id);
             if (!result.success) {
@@ -109,10 +110,15 @@ export default class PollRouter {
             let poll = result.data;
 
             let code = req.params['code'];
-            let success = await polls.update(code, poll);
-            if (!success) {
-                logger.info(`User with id '${user.id}' attempted to create a update poll with code '${code}', but failed`);
-                return res.sendStatus(500);
+            let status = await polls.updateAs(code, poll, user);
+
+            if (status != 'ok') logger.debug(`User with id '${user.id}' tried updating poll with code '${code}' but failed with: '${status}'`)
+
+            if (status == 'no-poll') return res.sendStatus(404);
+            if (status == 'permissions') {
+                let poll = await polls.find(code);
+                if (poll != null && polls.canUserSee(poll, user)) return res.sendStatus(403);
+                return res.sendStatus(404);
             }
 
             logger.info(`User with id '${user.id}' updated poll with code '${code}'${poll.code != code ? ` (new code: '${poll.code}')` : ''}`);

@@ -64,6 +64,14 @@ export default class PollService {
         return 'ok';
     }
 
+    public async updateAs(code : string, merge : Partial<Poll>, user : User) : Promise<'ok' | 'no-poll' | 'permissions'> {
+        let poll = await this.find(code);
+        if (poll == null) return 'no-poll';
+        if (!this.canUserControl(poll, user)) return 'permissions';
+        await this.update(code, merge);
+        return 'ok';
+    }
+
     public async update(code : string, merge : Partial<Poll>) : Promise<boolean> {
         if (await this.find(code) == null) return false;
         await this.db.updateOne({ code }, { $set: merge }, Constants.DBPolls);
