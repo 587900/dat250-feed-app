@@ -7,15 +7,13 @@ import {
   Typography,
   IconButton,
   Button,
-  FormControlLabel,
-  Switch,
 } from "@mui/material";
 import Masonry from "@mui/lab/Masonry";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import ThumbUpIcon from "@mui/icons-material/ThumbUp"; // For green votes
-import ThumbDownIcon from "@mui/icons-material/ThumbDown"; // For red votes
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import Navbar from "../../components/Navbar";
-import { getMyPolls, closePoll, openPoll } from "./../../services/pollService";
+import { getMyPolls } from "../../services/pollService";
 import Poll from "../../../../common/model/poll";
 
 const MyPollsPage: FC = () => {
@@ -27,21 +25,6 @@ const MyPollsPage: FC = () => {
       setPolls(data);
     });
   }, []);
-
-  const handleTogglePoll = async (poll: Poll, checked: boolean) => {
-    const success = checked
-      ? await openPoll(poll.code)
-      : await closePoll(poll.code);
-    if (success) {
-      setPolls(
-        polls.map((p) => (p.code === poll.code ? { ...p, open: checked } : p))
-      );
-    } else {
-      console.error(
-        `Failed to ${checked ? "open" : "close"} poll with code ${poll.code}`
-      );
-    }
-  };
 
   return (
     <div style={{ margin: 0, padding: 0, overflowX: "hidden" }}>
@@ -95,20 +78,6 @@ const MyPollsPage: FC = () => {
                   >
                     <ArrowForwardIcon />
                   </IconButton>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={poll.open}
-                        onChange={(e) =>
-                          handleTogglePoll(poll, e.target.checked)
-                        }
-                        color="primary"
-                      />
-                    }
-                    label={poll.open ? "Poll is Open" : "Poll is Closed"}
-                    labelPlacement="top"
-                    sx={{ mt: 2 }}
-                  />
                 </CardContent>
               </Card>
             ))}

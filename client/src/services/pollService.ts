@@ -143,6 +143,8 @@ export const openPoll = async (code: string): Promise<boolean> => {
       credentials: "include",
       headers: { "Content-Type": "application/json" }
     });
+    console.log('the response in the openPoll', response);
+    
     return response.ok;
   } catch (error) {
     console.error(`Error opening poll with code ${code}:`, error);

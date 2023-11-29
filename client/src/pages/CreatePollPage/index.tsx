@@ -14,6 +14,7 @@ import {
   FormLabel,
   RadioGroup,
   Radio,
+  FormGroup,
   Checkbox,
 } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -48,6 +49,7 @@ interface FormState {
 const voterOptions = [
   { label: "IoT Device", value: "iot-device" },
   { label: "Web User", value: "web-user" },
+  { label: "Guest", value: "web-user-guest" },
 ];
 
 const CreatePollPage: FC = () => {
@@ -78,10 +80,16 @@ const CreatePollPage: FC = () => {
   };
 
   const handleVoterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormState((prev) => ({
-      ...prev,
-      allowedVoters: [event.target.value],
-    }));
+    const value = event.target.value;
+    setFormState((prev) => {
+      const newAllowedVoters = prev.allowedVoters.includes(value)
+        ? prev.allowedVoters.filter((v) => v !== value)
+        : [...prev.allowedVoters, value];
+      return {
+        ...prev,
+        allowedVoters: newAllowedVoters,
+      };
+    });
   };
 
   const handleEmailAdd = (
@@ -277,24 +285,25 @@ const CreatePollPage: FC = () => {
           sx={{ mt: 2 }}
         >
           <Grid item xs={12}>
-              <FormControl component="fieldset" sx={{ mt: 2 }}>
-                <FormLabel component="legend">Allowed Voters</FormLabel>
-                <RadioGroup
-                  row
-                  name="allowedVoters"
-                  onChange={handleVoterChange}
-                >
-                  {voterOptions.map((option) => (
-                    <FormControlLabel
-                      key={option.value}
-                      value={option.value}
-                      control={<Radio />}
-                      label={option.label}
-                      disabled={formState.private}
-                    />
-                  ))}
-                </RadioGroup>
-              </FormControl>
+            <FormControl component="fieldset" sx={{ mt: 2 }}>
+              <FormLabel component="legend">Allowed Voters</FormLabel>
+              <FormGroup row>
+                {voterOptions.map((option) => (
+                  <FormControlLabel
+                    key={option.value}
+                    control={
+                      <Checkbox
+                        checked={formState.allowedVoters.includes(option.value)}
+                        onChange={handleVoterChange}
+                        value={option.value}
+                        disabled={formState.private}
+                      />
+                    }
+                    label={option.label}
+                  />
+                ))}
+              </FormGroup>
+            </FormControl>
           </Grid>
           <Grid item xs={12}>
             <FormControlLabel
@@ -303,7 +312,7 @@ const CreatePollPage: FC = () => {
                   checked={formState.timed}
                   onChange={handleInputChange}
                   name="timed"
-                  sx={{ml:0}}
+                  sx={{ ml: 0 }}
                 />
               }
               label="Timed Poll"
