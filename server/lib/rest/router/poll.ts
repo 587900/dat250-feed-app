@@ -131,8 +131,10 @@ export default class PollRouter {
             let user = req.user;
             if (!user) return res.status(401).send('You must be logged in');
 
-            if (!user.claims.includes('regular-voter'))
+            if (!user.claims.includes('regular-voter')) {
+                logger.debug(`User with id '${user.id}' attempted to do vote but failed because they were missing the regular-voter claim`);
                 return res.status(403).send('You are missing permissions to vote using the \'regular-voter\' voting mechanism');
+            }
 
             let proceed = Util.respondIfMissing(req.bodyQuery, ['selection'], res);
             if (!proceed) return;
@@ -159,8 +161,10 @@ export default class PollRouter {
             let user = req.user;
             if (!user) return res.status(401).send('You must be logged in');
 
-            if (!user.claims.includes('iot-device'))
+            if (!user.claims.includes('iot-device')) {
+                logger.debug(`User with id '${user.id}' attempted to do iot-vote but failed because they were missing the iot-vote claim`);
                 return res.status(403).send('You are missing permissions to vote using the \'iot-device\' voting mechanism');
+            }
 
             let proceed = Util.respondIfMissing(req.bodyQuery, ['selections'], res);
             if (!proceed) return;

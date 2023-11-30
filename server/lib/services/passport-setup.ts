@@ -71,7 +71,7 @@ export default class PassportSetup {
             let user = await auth.getUserByLocalId(email);
             if (user != null) return cb({ code: 409, reason: 'User already exists' }, null);
 
-            user = await auth.create(firstName, lastName, [ 'web-user', 'regular-voter' ], email, false);
+            user = await auth.create(firstName, lastName, [ 'web-user', 'regular-voter' ], firstName + ' ' + lastName, false);
             if (user == null) return cb({ code: 500, reason: 'Internal server error' }, null);
 
             let success = await auth.linkLocalAccount(user.id, email, password);
