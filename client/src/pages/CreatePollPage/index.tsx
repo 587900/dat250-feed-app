@@ -61,7 +61,7 @@ const CreatePollPage: FC = () => {
     timed: false, // Default is untimed
     timeoutUnix: 0,
     duration: 60, // Default duration set to 60 minutes
-    whitelist: [""],
+    whitelist: [],
     allowedVoters: [],
     code: "",
     open: true,

@@ -6,13 +6,15 @@ const API_BASE_URL = "http://localhost:8080/auth";
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/local`, {
-      method: "GET", // Changed from POST to GET as per your new route
+    // Encode email and password to safely include in URL
+    const queryParams = new URLSearchParams({ email, password }).toString();
+    const response = await fetch(`${API_BASE_URL}/local?${queryParams}`, {
+      method: "GET", // Using GET method
       credentials: "include", // Include credentials for cookies
       headers: {
         "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }), // Include email and password in the body
+      }
+      // Removed body as it is not allowed in GET requests
     });
 
     if (!response.ok) {
@@ -25,6 +27,7 @@ export const login = async (email: string, password: string) => {
     throw error; // Rethrow the error for the caller to handle
   }
 };
+
 
 export const register = async (userData) => {
   try {

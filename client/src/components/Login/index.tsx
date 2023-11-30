@@ -1,8 +1,6 @@
 import React, { useState, FC } from "react";
-import axios from "axios";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
-  Alert,
   Box,
   Tab,
   Tabs,
@@ -10,12 +8,14 @@ import {
   Button,
   Container,
   Typography,
-  IconButton,
   Checkbox,
   FormControlLabel,
   Divider,
   Grid,
 } from "@mui/material";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
+
 
 import {
   Google as GoogleIcon,
@@ -30,11 +30,13 @@ import { Stack } from "@mui/system";
 import { login, register } from "../../services/authService";
 import { useAuth } from "../AuthContext";
 
+
 const Login: FC = () => {
   const navigate = useNavigate();
   const { login: contextLogin } = useAuth();
   const [activeTab, setActiveTab] = useState<number>(0);
   const [error, setError] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState<string>("");
@@ -48,8 +50,6 @@ const Login: FC = () => {
   const [password, setPassword] = useState<string>("");
   const [registerConfirmPassword, setRegisterConfirmPassword] =
     useState<string>("");
-
-  const combinedError = error;
 
   const handleLogin = async () => {
     try {
@@ -68,9 +68,9 @@ const Login: FC = () => {
     try {
       console.log('handleSignUp entered');
       
-      const { user, token } = await register({ firstName, lastName, email, password });
-      console.log('user after register',user); // User data
-      // Navigate to login page or dashboard
+      const user = await register({ firstName, lastName, email, password });
+      console.log('user after register',user); 
+      setSuccessMessage("successfully registered"); //not showing up for some reason
     } catch (error: any) {
       setError(error.response?.data || 'Registration failed');
     }
@@ -170,7 +170,7 @@ const Login: FC = () => {
               </Typography>
               <Link
                 to="/"
-                style={{ color: "#fff", backgroundColor: "inherit" }}
+                style={{ color: "#000", backgroundColor: "inherit", textDecoration: "none" }}
               >
                 Go Back
               </Link>
@@ -206,32 +206,26 @@ const Login: FC = () => {
                       Google
                     </Typography>
                   </Button>
-                  {/* <Button
-                      variant="outlined"
-                      onClick={handleFacebookLogin}
-                      startIcon={
-                        <FacebookIcon fontSize="large" color="primary" />
-                      }
-                    >
-                      <Typography
-                        variant="h5"
-                        sx={{ letterSpacing: 1, fontWeight: "bold", textTransform: "none" }}
-                        color="primary"
-                      >
-                        Facebook
-                      </Typography>
-                    </Button> */}
                 </Box>
                 <Typography align="center" variant="body1" sx={{ mt: 2 }}>
                   or:
                 </Typography>
-                {combinedError && (
+                {error && (
                   <Typography
                     variant="body2"
                     color="error"
                     sx={{ mt: 2, textAlign: "center" }}
                   >
-                    {combinedError}
+                    {error}
+                  </Typography>
+                )}
+                {successMessage && (
+                  <Typography
+                    variant="body2"
+                    color="primary"
+                    sx={{ mt: 2, textAlign: "center" }}
+                  >
+                    {successMessage}
                   </Typography>
                 )}
                 <TextField
@@ -310,13 +304,13 @@ const Login: FC = () => {
                 <Typography align="center" variant="body1" sx={{ mt: 2 }}>
                   or:
                 </Typography>
-                {combinedError && (
+                {error && (
                   <Typography
                     variant="body2"
                     color="error"
                     sx={{ mt: 2, textAlign: "center" }}
                   >
-                    {combinedError}
+                    {error}
                   </Typography>
                 )}
                 <TextField
