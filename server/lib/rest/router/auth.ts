@@ -76,8 +76,8 @@ export default class AuthRouter {
     private static local() : Router {
         let router = Router();
 
-        router.get('/', (req, res, next) => passport.authenticate('local', this.crhandler.bind(this, req, res, next))(req, res, next));
-        router.post('/register', (req, res, next) => passport.authenticate('local-register', this.crhandler.bind(this, req, res, next))(req, res, next));
+        router.get('/', (req, res, next) => passport.authenticate('local', this.crhandlernr.bind(this, req, res, next))(req, res, next));
+        router.post('/register', (req, res, next) => passport.authenticate('local-register', this.crhandlernr.bind(this, req, res, next))(req, res, next));
 
         return router;
     }
@@ -113,8 +113,24 @@ export default class AuthRouter {
         if (!user) return res.redirect(failureRedirect);
 
         req.logIn(user, err => {
-            if (err) { return next(err); }
+            if (err) return next(err);
             return res.redirect(successRedirect);
+        });
+    }
+
+    // code-reason handler no-redirect
+    private static crhandlernr(req, res, next, err, user, info) {
+        if (err) {
+            let { code, reason } = err;
+            if (code == null || reason == null) return next(err);
+            return res.status(code).send(reason);
+        }
+
+        if (!user) return res.sendStatus(500);
+
+        req.logIn(user, err => {
+            if (err) return next(err);
+            return res.send(user);
         });
     }
 
