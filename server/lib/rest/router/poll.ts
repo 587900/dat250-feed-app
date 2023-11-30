@@ -13,6 +13,7 @@ import Util from './../util';
 
 import Logger from './../../logger';
 import { VoteSelection } from '../../../../common/model/vote';
+import { KeyValuePair } from '../../../../common/types';
 
 @StaticImplements<IRouterClass>()
 export default class PollRouter {
@@ -130,6 +131,9 @@ export default class PollRouter {
             let user = req.user;
             if (!user) return res.status(401).send('You must be logged in');
 
+            if (!user.claims.includes('regular-voter'))
+                return res.status(403).send('You are missing permissions to vote using the \'regular-voter\' voting mechanism');
+
             let proceed = Util.respondIfMissing(req.bodyQuery, ['selection'], res);
             if (!proceed) return;
 
@@ -149,6 +153,41 @@ export default class PollRouter {
             logger.info(`User with id '${user.id}' voted on poll with code '${code}' (selection: ${selection}, changed: ${result.changed})`);
 
             return res.send(result.vote);
+        });
+
+        router.post('/:code/iot-vote', async (req, res) => {
+            let user = req.user;
+            if (!user) return res.status(401).send('You must be logged in');
+
+            if (!user.claims.includes('iot-device'))
+                return res.status(403).send('You are missing permissions to vote using the \'iot-device\' voting mechanism');
+
+            let proceed = Util.respondIfMissing(req.bodyQuery, ['selections'], res);
+            if (!proceed) return;
+
+            let code = req.params['code'];
+            let { selections } = <{ selections: KeyValuePair<string> }>(<unknown>req.bodyQuery);
+            for (let v of Object.values(selections)) {
+                if (isNaN(Number(v))) return res.status(400).send('All selections must corrolate a selection with a number');
+            }
+
+            // TODO: not implemented - consider replacing 'status' with { status: true, IoTVote } | { status: false, reason }
+            //let status = await polls.iotvote(code, user, selections);
+            let status : 'ok' | 'no-poll' | 'invalid-selection' | 'permissions' = <'ok' | 'no-poll' | 'invalid-selection' | 'permissions'>(['ok'][0]);
+
+            if (status != 'ok') logger.debug(`User with id '${user.id}' tried iot-vote with code '${code}' but failed with: '${status}'`);
+
+            if (status == 'no-poll') return res.sendStatus(404);
+            if (status == 'invalid-selection') return res.status(400).send('one of the selections do not exist on the poll');
+            if (status == 'permissions') {
+                let poll = await polls.find(code);
+                if (poll != null && polls.canUserSee(poll, user)) return res.sendStatus(403);
+                return res.sendStatus(404);
+            }
+
+            logger.info(`User with id '${user.id}' successfully did iot-vote with code '${code}', selections: ${selections}`);
+
+            return res.send('ok');
         });
 
         router.get('/:code/vote', async (req, res) => {

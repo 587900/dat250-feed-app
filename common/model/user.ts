@@ -1,6 +1,6 @@
 'use strict';
 
-type Claim = 'web-user' | 'admin' | 'iot-device' | 'web-user-guest';
+type Claim = 'web-user' | 'admin' | 'iot-device' | 'regular-voter' | 'web-user-guest';
 type LastLoggedInWith = 'google' | 'iot-device' | 'none' | 'local' | 'local-guest';
 
 type User = {

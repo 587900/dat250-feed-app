@@ -33,7 +33,7 @@ export default class PassportSetup {
             let user = await auth.getUserByLocalGuestId(id);
             if (user == null) {
                 let uid = Math.floor(Math.random() * 1000000);
-                user = await auth.create('Guest', `${uid}`, [ 'web-user-guest' ], `guest-${uid}`, true);
+                user = await auth.create('Guest', `${uid}`, [ 'web-user-guest', 'regular-voter' ], `guest-${uid}`, true);
                 if (user == null) return cb('failed to create guest account', null);
                 let success = await auth.linkLocalGuestAccount(user.id, id);
                 if (!success) {
@@ -71,7 +71,7 @@ export default class PassportSetup {
             let user = await auth.getUserByLocalId(email);
             if (user != null) return cb({ code: 409, reason: 'User already exists' }, null);
 
-            user = await auth.create(firstName, lastName, [ 'web-user' ], email, false);
+            user = await auth.create(firstName, lastName, [ 'web-user', 'regular-voter' ], email, false);
             if (user == null) return cb({ code: 500, reason: 'Internal server error' }, null);
 
             let success = await auth.linkLocalAccount(user.id, email, password);
@@ -91,7 +91,7 @@ export default class PassportSetup {
             }, async (accessToken, refreshToken, profile, cb) => {
                 let user = await auth.getUserByGoogleId(profile.id);
                 if (user == null) {
-                    user = await auth.create(profile.name.givenName, profile.name.familyName, [ 'web-user' ], profile.name.givenName + ' ' + profile.name.familyName, false);
+                    user = await auth.create(profile.name.givenName, profile.name.familyName, [ 'web-user', 'regular-voter' ], profile.name.givenName + ' ' + profile.name.familyName, false);
                     if (user == null) return cb('failed to create account, username already exists', null);
                     let success = await auth.linkGoogleAccount(user.id, profile.id);
                     if (!success) {
