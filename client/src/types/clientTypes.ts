@@ -14,5 +14,5 @@ export type CreatePollData = {
 };
 
 
-export type LoginUserData = Omit<User, 'lastLoggedInWith' | 'creationUnix' | 'claims' | 'lastLoggedInUnix'>;
+export type LoginUserData = Omit<User, 'lastLoggedInWith' | 'creationUnix' | 'lastLoggedInUnix'>;
 

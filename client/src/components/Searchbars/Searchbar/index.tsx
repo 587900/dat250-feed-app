@@ -3,8 +3,8 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from 'react-router-dom';
-import { getFrontPagePolls } from "../../services/pollService";
-import APIPoll from "../../../../common/model/api-poll";
+import { getFrontPagePolls } from "../../../services/pollService";
+import APIPoll from "../../../../../common/model/api-poll";
 
 const Searchbar: FC = () => {
   const [polls, setPolls] = useState<APIPoll[]>([]);

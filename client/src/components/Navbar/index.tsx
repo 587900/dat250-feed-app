@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
-import Searchbar from "../Searchbar";
+import Searchbar from "../Searchbars/Searchbar";
 import {
   Box,
   Typography,
