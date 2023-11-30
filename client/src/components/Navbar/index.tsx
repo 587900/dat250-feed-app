@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
 
   const theme = useTheme();
   const { user, logout } = useAuth();
-  
+
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const isPhone = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -74,7 +74,17 @@ const Navbar: React.FC = () => {
           <Typography color="primary">Create Poll</Typography>
         </Link>
       </MenuItem>
-
+      {user?.claims.includes("admin") && (
+        <MenuItem onClick={handleMobileMenuClose}>
+          <Link
+            to="/admin"
+            className="me-auto"
+            style={{ backgroundColor: "inherit", textDecoration: "none" }}
+          >
+            <Typography color="primary">Admin</Typography>
+          </Link>
+        </MenuItem>
+      )}
       <MenuItem onClick={handleMobileMenuClose}>
         {user?.guest === false && user ? (
           <Typography color="primary" onClick={logout}>
@@ -135,7 +145,7 @@ const Navbar: React.FC = () => {
                 [theme.breakpoints.down("md")]: {
                   width: "60%",
                 },
-                width: "50%",
+                width: "37%",
               }}
               marginLeft={1}
               marginRight={1}
@@ -145,6 +155,29 @@ const Navbar: React.FC = () => {
 
             {isPhone ? null : (
               <>
+                {user?.claims.includes("admin") && (
+                  <Link
+                    to="/admin"
+                    style={{
+                      backgroundColor: "inherit",
+                      textDecoration: "none",
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      color="primary"
+                      sx={{
+                        p: 1,
+                        mx: 1,
+                        border: "solid 2px",
+                        borderColor: "primary.light",
+                        borderRadius: "10px",
+                      }}
+                    >
+                      Admin
+                    </Typography>
+                  </Link>
+                )}
                 <Link
                   to="/my-polls"
                   className="me-auto"
