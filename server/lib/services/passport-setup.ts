@@ -1,6 +1,8 @@
 'use strict';
 
 import { IncomingMessage } from 'http';
+import { Request, Response } from 'express';
+
 
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
@@ -15,9 +17,15 @@ import Services from './../services';
 import Config from './../config';
 import Constants from './../constants';
 
+interface CustomRequest extends Request {
+    res: Response;
+  }
+
 export default class PassportSetup {
 
     constructor() {}
+
+    
 
     public setup(baseUrl : string) {
         while (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
@@ -56,7 +64,10 @@ export default class PassportSetup {
             return cb(null, user);
         }));
 
-        passport.use('local-register', new CustomStrategy(async (req: IncomingMessage, cb) => {
+        passport.use('local-register', new CustomStrategy(async (req: CustomRequest, cb) => {
+            // Cast req to the custom type to access the res object
+            let res = req.res;
+        
             let data = (<any>req).bodyQuery;
             if (data == null) return cb({ code: 500, reason: 'Internal server error' }, null);
 
@@ -69,19 +80,23 @@ export default class PassportSetup {
             let { email, password, firstName, lastName } = <{ email : string, password : string, firstName : string, lastName : string } >data;
 
             let user = await auth.getUserByLocalId(email);
-            if (user != null) return cb({ code: 409, reason: 'User already exists' }, null);
-
+            if (user != null) {
+                return res.status(409).json({ message: 'User already exists' });
+            }
+        
             user = await auth.create(firstName, lastName, [ 'web-user' ], email, false);
-            if (user == null) return cb({ code: 500, reason: 'Internal server error' }, null);
-
+            if (user == null) {
+                return res.status(500).json({ message: 'Internal server error' });
+            }
+        
             let success = await auth.linkLocalAccount(user.id, email, password);
             if (!success) {
                 auth.delete(user.id);
-                return cb({ code: 500, reason: 'Internal server error' }, null);
+                return res.status(500).json({ message: 'Internal server error' });
             }
-
-            auth.notifyLogin(user.id, 'local');
-            return cb(null, user);
+        
+            // Send success response
+            res.status(201).json({ message: 'User registered successfully', user: user });
         }));
 
         passport.use('google', new GoogleStrategy({

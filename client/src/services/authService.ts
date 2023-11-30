@@ -28,20 +28,16 @@ export const login = async (email: string, password: string) => {
 
 export const register = async (userData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/local/register`, {
-      method: "POST",
-      credentials: "include",
+    const response = await axios.post(`${API_BASE_URL}/local/register`, userData, {
+      withCredentials: true,
       headers: {
         "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "http://localhost:3000",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS", 
       },
-      body: JSON.stringify(userData),
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Registration failed', error);
     throw error;

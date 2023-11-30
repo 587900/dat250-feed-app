@@ -43,7 +43,7 @@ const rows = [
 */
 
 type LocalPoll = {
-  id: string;
+  id: number;
   creator: string;
   title: string;
   private: string;
@@ -77,7 +77,7 @@ const Home: FC = () => {
     getFrontPagePolls().then((data) => {
       let modified = data.map((e) => {
         return {
-          id: e.code,
+          id: e.creationUnix,
           creator:  e.username,
           title: e.title,
           code: e.code,
