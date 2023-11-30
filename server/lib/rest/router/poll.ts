@@ -127,6 +127,18 @@ export default class PollRouter {
             return res.send(poll);
         });
 
+        router.get('/:code/vote', async (req, res) => {
+            let user = req.user;
+            if (!user) return res.status(401).send('You must be logged in');
+
+            let code = req.params['code'];
+
+            let result = await votes.find({ pollCode: code, userId: user.id });
+            if (result == null) return res.sendStatus(404);
+
+            return res.send(result);
+        });
+
         router.post('/:code/vote', async (req, res) => {
             let user = req.user;
             if (!user) return res.status(401).send('You must be logged in');
@@ -155,6 +167,19 @@ export default class PollRouter {
             logger.info(`User with id '${user.id}' voted on poll with code '${code}' (selection: ${selection}, changed: ${result.changed})`);
 
             return res.send(result.vote);
+        });
+
+        router.get('/:code/iot-vote', async (req, res) => {
+            let user = req.user;
+            if (!user) return res.status(401).send('You must be logged in');
+
+            //let code = req.params['code'];
+
+            //let result = await iotvotes.find({ pollCode: code, userId: user.id });
+            let result = null;
+            if (result == null) return res.sendStatus(404);
+
+            return res.send(result);
         });
 
         router.post('/:code/iot-vote', async (req, res) => {
@@ -192,18 +217,6 @@ export default class PollRouter {
             logger.info(`User with id '${user.id}' successfully did iot-vote with code '${code}', selections: ${selections}`);
 
             return res.send('ok');
-        });
-
-        router.get('/:code/vote', async (req, res) => {
-            let user = req.user;
-            if (!user) return res.status(401).send('You must be logged in');
-
-            let code = req.params['code'];
-
-            let result = await votes.find({ pollCode: code, userId: user.id });
-            if (result == null) return res.sendStatus(404);
-
-            return res.send(result);
         });
 
         router.put('/:code/close', async (req, res) => {
