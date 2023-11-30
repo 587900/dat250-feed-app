@@ -66,8 +66,10 @@ const Login: FC = () => {
     if (!validateRegisterForm()) return;
   
     try {
+      console.log('handleSignUp entered');
+      
       const { user, token } = await register({ firstName, lastName, email, password });
-      console.log(user); // User data
+      console.log('user after register',user); // User data
       // Navigate to login page or dashboard
     } catch (error: any) {
       setError(error.response?.data || 'Registration failed');

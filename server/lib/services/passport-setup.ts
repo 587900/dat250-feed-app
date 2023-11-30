@@ -56,7 +56,7 @@ export default class PassportSetup {
             return cb(null, user);
         }));
 
-        passport.use('local-register', new CustomStrategy(async (req: IncomingMessage, cb) => {
+        passport.use('local-register', new CustomStrategy(async (req: IncomingMessage, cb) => {        
             let data = (<any>req).bodyQuery;
             if (data == null) return cb({ code: 500, reason: 'Internal server error' }, null);
 

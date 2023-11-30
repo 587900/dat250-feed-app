@@ -151,3 +151,25 @@ export const openPoll = async (code: string): Promise<boolean> => {
     return false;
   }
 };
+
+
+export const deletePoll = async (code: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/resource/poll/${code}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    if (response.ok) {
+      console.log("Poll deleted successfully");
+      return true;
+    } else {
+      console.error(`Failed to delete poll with code ${code}, status code: ${response.status}`);
+      return false;
+    }
+  } catch (error) {
+    console.error(`Error deleting poll with code ${code}:`, error);
+    return false;
+  }
+};

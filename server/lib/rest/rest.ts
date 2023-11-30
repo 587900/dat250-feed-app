@@ -31,7 +31,7 @@ export default class REST {
         app.use(express.urlencoded({ extended: true }));
         app.use(express.json());
         app.use(bodyQuery());
-        app.use(cors({ origin: Config.corsOrigin, credentials: true }));
+        app.use(cors({ origin: Config.corsOrigin, credentials: true, optionSuccessStatus: 200 }));
 
         app.use(passport.initialize());
         app.use(passport.session());

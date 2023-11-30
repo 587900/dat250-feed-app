@@ -6,18 +6,19 @@ import Loading from '../pages/Loading';
 
 type ProtectedRouteProps = {
   children: ReactElement;
+  allowedRoles?: string[]; 
 };
 
-export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children, allowedRoles = [] }) => {
   const { user, isLoading } = useAuth();
-  console.log('logging the user in protected routes:', user);
 
   if (isLoading) {
-    // Render some loading indicator or return null to wait
     return <Loading />;
   }
-  
-  if (!user || user.guest === true) {
+
+  const userHasRequiredRole = user && user.claims.some(claim => allowedRoles.includes(claim));
+
+  if (!user || user.guest === true || !userHasRequiredRole) {
     return <Navigate to="/login" replace />;
   }
 

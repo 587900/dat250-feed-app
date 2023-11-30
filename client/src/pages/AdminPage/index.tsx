@@ -14,14 +14,17 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import Navbar from "../../components/Navbar";
-import { getMyPolls, deletePoll } from "../../services/pollService";
+import { getFrontPagePolls, deletePoll } from "../../services/pollService";
 import Poll from "../../../../common/model/poll";
+import AdminSearchbar from "../../components/Searchbars/AdminSearchbar";
 
-const MyPollsPage: FC = () => {
+// TODO: as the app grows bigger, we will add pagination.
+const AdminPage: FC = () => {
   const [polls, setPolls] = useState<Poll[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    getMyPolls().then((data) => {
+    getFrontPagePolls().then((data) => {
       console.log("Fetched polls:", data);
       setPolls(data);
     });
@@ -37,14 +40,20 @@ const MyPollsPage: FC = () => {
     }
   };
 
+  const filteredPolls = polls.filter(poll => 
+    poll.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    poll.code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div style={{ margin: 0, padding: 0, overflowX: "hidden" }}>
       <Navbar />
-      <Typography sx={{ textAlign: "center", mt: 3 }}>My Polls</Typography>
+      <Typography sx={{ textAlign: "center", mt: 3 }}>Administration</Typography>
+      <Box sx={{width: "60%", mx: 'auto', my: 2}}><AdminSearchbar onSearch={setSearchTerm} /></Box>
       <Box sx={{ width: "80%", mx: "auto", my: 4 }}>
-        {polls.length !== 0 ? (
+      {filteredPolls.length !== 0 ? (
           <Masonry columns={{ xs: 1, sm: 2, md: 3, lg: 4 }} spacing={2}>
-            {polls.map((poll, index) => (
+            {filteredPolls.map((poll, index) => (
               <Card key={index} sx={{ maxWidth: 345, mx: "auto" }}>
                 <CardContent
                   sx={{
@@ -102,15 +111,7 @@ const MyPollsPage: FC = () => {
           </Masonry>
         ) : (
           <Box sx={{ textAlign: "center", my: 4 }}>
-            <Typography variant="h2">You have no polls created</Typography>
-            <Button
-              variant="outlined"
-              sx={{ mt: 1 }}
-              component={Link}
-              to="/create-poll"
-            >
-              <Typography variant="button">Click here to create</Typography>
-            </Button>
+            <Typography variant="h2">No polls available or invalid search terms</Typography>
           </Box>
         )}
       </Box>
@@ -118,4 +119,4 @@ const MyPollsPage: FC = () => {
   );
 };
 
-export default MyPollsPage;
+export default AdminPage;
